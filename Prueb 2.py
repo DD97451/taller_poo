@@ -11,7 +11,6 @@ def tuerca_lateral_animada(frame):
         "    _____\n   /   o   \\\n  |     o   |\n   \\_______/",
     ]
     return tuerca_frames[frame % len(tuerca_frames)]
-h
 
 def tractor_reparacion(frame):
     tuerca = tuerca_lateral_animada(frame)
