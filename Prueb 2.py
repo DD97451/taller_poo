@@ -1,8 +1,8 @@
 import random
 import os
 import time
-from time import sleep
-
+def limpiar():
+    os.system("cls" if os.name == "nt" else "clear")
 def tuerca_lateral_animada(frame):
     tuerca_frames = [
         "    _____\n   /       \\\n  |   o o   |\n   \\_______/",
@@ -29,8 +29,7 @@ def tractor_podadora_reparacion(frame):
     return base.replace("EN REPARACIÓN", "EN REPARACIÓN (podadora)")
 
 
-def limpiar():
-    os.system("cls" if os.name == "nt" else "clear")
+
 
 
 def tractor_fumigador_reparacion(frame):
@@ -221,6 +220,18 @@ def azar(multiplicador):
         return False
 
 
+def seleccionar_tecnico(tipo):
+    for i in lista_tecnicos:
+        if i.maquinaria==tipo:
+            if not i.get_laborando():
+                print(f"No hay tecnicos disponibles para el tipo {tipo}")
+                return None
+            else:
+                return i
+
+maquinas_en_mantenimiento=[]
+maquinas_en_reparacion=[]
+
 class Maquinaria:
     def __init__(self,num_serial, tank_fuel, mantenimiento, en_uso=True):#la hora de mantenimiento es el tiempo de uso antes de un mantenimiento
         self._num_serial=num_serial
@@ -230,10 +241,16 @@ class Maquinaria:
         self.en_uso=en_uso
     def get_info(self):
         print(self._tank_fuel, self.mantenimiento, self.en_uso)
+    def get_serial(self):
+        return self._num_serial
     def get_mantenimiento(self):
         return self._mantenimiento_privado
+    def get_mantenimiento_privado(self):
+        return  self._mantenimiento_privado
     def activar_desactivar(self):
         self.en_uso= not self.en_uso
+    def historial_mantenimiento(self):
+        pass
 
 
 class Tractor(Maquinaria):
@@ -277,21 +294,19 @@ class Serviciotecnico:
     def __init__(self,nombre,identificacion,maquinaria,laborando=True):
         self._nombre=nombre
         self._identificacion=identificacion
-        self._maquinaria=maquinaria
+        self.maquinaria=maquinaria
         self._laborando=laborando
     def cambiar_estado(self):
         self._laborando=not self._laborando
+    def get_nombre(self):
+        return self._nombre
+    def get_laborando(self):
+        return self._laborando
 
-def seleccionar_tecnico(tipo):
-    for i in lista_tecnicos:
-        if i._maquinaria==tipo:
-            if i._laborando==False:
-                print(f"No hay tecnicos disponibles para el tipo {tipo}")
-                return None
-            else:
-                return i
 
-class Mantenimiento(): 
+
+
+class Mantenimiento:
     @staticmethod
     def iniciar_mantenimiento(maquina):
         if isinstance(maquina,Cosechador):
@@ -304,35 +319,35 @@ class Mantenimiento():
             print("hay un error")
         
         if maquina.mantenimiento==0:
-            print(f"El tiempo de mantenimiento optimo para el {tipo} {maquina._num_serial} ha caducado, intente hacer reparación")
+            print(f"El tiempo de mantenimiento optimo para el {tipo} {maquina.get_serial()} ha caducado, intente hacer reparación")
             pass
         else:
             tecnico=seleccionar_tecnico(tipo)
-            if tecnico!=None:
+            if tecnico is not None:
                 tecnico.cambiar_estado()
-                maquina.mantenimiento=maquina._mantenimiento_privado
+                maquina.mantenimiento=maquina.get_mantenimiento_privado()
                 maquinas_en_mantenimiento.append(maquina)
-                print(maquinas_en_mantenimiento)
-                print(f"El tecnico {tecnico._nombre} realizará el antenimiento del {tipo} {maquina._num_serial}, estará disponible mañana")
+                for x in maquinas_en_mantenimiento:
+                    print(x.get_serial())
+                print(f"El tecnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina.get_serial()}, estará disponible mañana")
     @staticmethod
     def reparar(maquina):
         if isinstance(maquina, (Cosechador, Fumigador, Tractor)):
             tipo = maquina.__class__.__name__
             
             if maquina.mantenimiento > 0:
-                print(f"El {tipo} {maquina._num_serial} no necesita reparación.")
+                print(f"El {tipo} {maquina.get_serial()} no necesita reparación.")
                 return
             
             tecnico = seleccionar_tecnico(tipo)
             if tecnico:
-                print(f"🔧 El técnico {tecnico._nombre} comenzó la reparación del {tipo} {maquina._num_serial}. estará disponible en dos díasj")
+                print(f"🔧 El técnico {tecnico.get_nombre()} comenzó la reparación del {tipo} {maquina.get_serial()}. estará disponible en dos díasj")
                 maquina.mantenimiento = maquina._mantenimiento_privado  # Restaura el mantenimiento
-                maquinas_en_reparación.append(maquina)
+                maquinas_en_reparacion.append(maquina)
             else:
-                print(f"⚠️ No hay técnicos disponibles para reparar el {tipo} {maquina._num_serial}.")
+                print(f"⚠️ No hay técnicos disponibles para reparar el {tipo} {maquina.get_serial()}.")
 
-maquinas_en_mantenimiento=[]
-maquinas_en_reparación=[]
+
 ejempplo=Cosechador(1,1,110)
 ej2=Fumigador(1,1,255)
 eje3=Tractor(1,2,300)
