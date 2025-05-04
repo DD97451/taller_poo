@@ -7,40 +7,6 @@ from datetime import datetime
 def limpiar():
     os.system("cls" if os.name == "nt" else "clear")
 
-
-def tuerca_lateral_animada(frame):
-    tuerca_frames = [
-        "    _____\n   /       \\\n  |   o o   |\n   \\_______/",
-        "    _____\n   /   o   \\\n  |    o    |\n   \\_______/",
-        "    _____\n   /    o  \\\n  |   o     |\n   \\_______/",
-        "    _____\n   /   o   \\\n  |     o   |\n   \\_______/",
-    ]
-    return tuerca_frames[frame % len(tuerca_frames)]
-
-
-def tractor_reparacion(frame):
-    tuerca = tuerca_lateral_animada(frame)
-    return f"""{tuerca}
-
-        ______
-  ____|__|__\\___
- |   _   ___   `|
-/|__|_|_|___|___|
-( o )         ( o )
-
-     🔧 EN REPARACIÓN 🔧"""
-
-
-def tractor_podadora_reparacion(frame):
-    base = tractor_reparacion(frame)
-    return base.replace("EN REPARACIÓN", "EN REPARACIÓN (podadora)")
-
-
-def tractor_fumigador_reparacion(frame):
-    base = tractor_reparacion(frame)
-    return base.replace("EN REPARACIÓN", "EN REPARACIÓN (fumigador)")
-
-
 def mover_tractor(lista_objetos):
     # ---------------- TRACTOR NORMAL ----------------
 
@@ -450,14 +416,50 @@ class Mantenimiento:
         self.tecnico = tecnico
         self.día = día
 
+
     @staticmethod
     def iniciar_mantenimiento(maquina_seleccionada):
+        def tractor_reparacion(frame):
+            tuerca = tuerca_lateral_animada(frame)
+            return f"""{tuerca}
+
+                   ______
+             ____|__|__\\___
+            |   _   ___   `|
+           /|__|_|_|___|___|
+           ( o )         ( o )
+
+                🔧 EN REPARACIÓN 🔧"""
+
+        def tractor_podadora_reparacion(frame):
+            base = tractor_reparacion(frame)
+            return base.replace("EN REPARACIÓN", "EN REPARACIÓN (podadora)")
+
+        def tractor_fumigador_reparacion(frame):
+            base = tractor_reparacion(frame)
+            return base.replace("EN REPARACIÓN", "EN REPARACIÓN (fumigador)")
+
+        def tuerca_lateral_animada(frame):
+            tuerca_frames = [
+                "    _____\n   /       \\\n  |   o o   |\n   \\_______/",
+                "    _____\n   /   o   \\\n  |    o    |\n   \\_______/",
+                "    _____\n   /    o  \\\n  |   o     |\n   \\_______/",
+                "    _____\n   /   o   \\\n  |     o   |\n   \\_______/",
+            ]
+            return tuerca_frames[frame % len(tuerca_frames)]
+
         if isinstance(maquina_seleccionada, Cosechador):
             tipo = "Cosechador"
+            for i in range(6):
+                tractor_podadora_reparacion(i)
         elif isinstance(maquina_seleccionada, Fumigador):
             tipo = "Fumigador"
+            for i in range(6):
+                tractor_fumigador_reparacion(i)
         elif isinstance(maquina_seleccionada, Tractor):
             tipo = "Tractor"
+            for i in range(6):
+                tractor_reparacion(i)
         else:
             print("hay un error")
 
@@ -473,8 +475,10 @@ class Mantenimiento:
             maquina_agregar = Mantenimiento(maquina_seleccionada, tecnico, dia)
             maquinas_en_mantenimiento.append(maquina_agregar)
             maquina_seleccionada.subir_historial("Mantenimiento preventivo", tecnico.get_nombre(), dia)  # <-- Añade esto
+
             print(
                 f"El técnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina_seleccionada.get_serial()}. Estará disponible mañana.")
+
 
     @staticmethod
     def reparar(equipo):
@@ -510,7 +514,8 @@ nuevo_dia(maquinas_trabajan)
 
 print(f"Estado inicial de Juan: {lista_tecnicos[0].get_laborando()}")  # Correcto
 # Asignar mantenimiento
-Mantenimiento.iniciar_mantenimiento(maquina1)  # Juan debe estar ocupado ahora
+j=Mantenimiento
+j.iniciar_mantenimiento(maquina1)  # Juan debe estar ocupado ahora
 print(f"Estado de Juan después de asignar: {lista_tecnicos[0].get_laborando()}")  # True (ocupado)
 
 # Avanzar día
