@@ -2,6 +2,10 @@ import random
 import os
 import time
 from datetime import datetime
+
+from PIL.ImImagePlugin import split
+
+
 def limpiar():
     os.system("cls" if os.name == "nt" else "clear")
 def tuerca_lateral_animada(frame):
@@ -386,3 +390,11 @@ eje3.mostrar_historial()
 ej2.mostrar_historial()
 #mover_tractor(eje3,ej2,ejempplo)
 #sleep(3)
+def eliminar_memoria():
+    current_directory = os.getcwd()
+    entries = os.listdir(current_directory)
+    print(entries) # Returns ['my_data, 'airbnb_data.csv']
+    for c in entries:
+        if c.split('.')[1]=='txt':
+            os.remove(c)
+        print(list(c))
