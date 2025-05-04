@@ -228,12 +228,10 @@ def azar(multiplicador):
 
 def seleccionar_tecnico(tipo):
     for i in lista_tecnicos:
-        if i.maquinaria == tipo:
-            if not i.get_laborando():
-                print(f"No hay tecnicos disponibles para el tipo {tipo}")
-                return None
-            else:
-                return i
+        if i.maquinaria == tipo and not i.get_laborando():  # Busca técnicos LIBRES
+            return i
+    print(f"No hay técnicos disponibles para el tipo {tipo}")
+    return None
 
 
 maquinas_en_mantenimiento = []
@@ -326,20 +324,23 @@ class Cosechador(Maquinaria):
 
 
 class Serviciotecnico:
-    def __init__(self, nombre, identificacion, maquinaria, laborando=True):
+    def __init__(self, nombre, identificacion, maquinaria, laborando=False):
         self._nombre = nombre
         self._identificacion = identificacion
         self.maquinaria = maquinaria
-        self._laborando = laborando
+        self._laborando = laborando  # False: Libre, True: Ocupado
 
-    def cambiar_estado(self):
-        self._laborando = not self._laborando
+    def get_laborando(self):
+        return self._laborando  # Nota el guión bajo en "_laborando"
 
     def get_nombre(self):
         return self._nombre
 
-    def get_laborando(self):
-        return self._laborando
+    def get_identificacion(self):
+        return self._identificacion
+
+    def cambiar_estado(self):
+        self._laborando = not self._laborando  # Alterna entre libre/ocupado
 
 
 class Mantenimiento:
@@ -398,13 +399,15 @@ def nuevo_dia():
     global dia
     dia += 1
     print(f"Hoy es el día {dia}.")
-    for i in maquinas_en_mantenimiento:
+
+    # Procesar mantenimientos
+    for i in maquinas_en_mantenimiento.copy():
         if i.maquina.mantenimiento > 0:
             i.maquina.mantenimiento -= 1
-        if i.maquina.mantenimiento == 0:
-            print(f"El {i.maquina.__class__.__name__} {i.maquina.get_serial()} ha completado su mantenimiento.")
-            i.tecnico.cambiar_estado()
-            maquinas_en_mantenimiento.remove(i)
+            if i.maquina.mantenimiento == 0:
+                print(f"El {i.maquina.__class__.__name__} {i.maquina.get_serial()} ha completado su mantenimiento.")
+                i.tecnico.cambiar_estado()  # Liberar técnico
+                maquinas_en_mantenimiento.remove(i)
     for j in maquinas_en_reparacion:
         if j.maquina.mantenimiento > 0:
             j.maquina.mantenimiento -= 1
@@ -412,17 +415,6 @@ def nuevo_dia():
             print(f"El {j.maquina.__class__.__name__} {j.maquina.get_serial()} ha sido reparado.")
             j.tecnico.cambiar_estado()
             maquinas_en_reparacion.remove(j)
-    for k in lista_maquinas:
-        if k.get_mantenimiento() > 0:
-            print(f"El {k.__class__.__name__} {k.get_serial()} está funcionando correctamente.")
-            k.mantenimiento = k.mantenimiento - 6
-            print(
-                f"El {k.__class__.__name__} {k.get_serial()} tiene {k.mantenimiento} horas de mantenimiento restante.")
-            if k.mantenimiento <= 6:
-                print(f"El {k.__class__.__name__} {k.get_serial()} está a punto de necesitar mantenimiento.")
-        elif k.mantenimiento <= 0:
-            print(f"El {k.__class__.__name__} {k.get_serial()} necesita reparación.")
-            Mantenimiento.iniciar_mantenimiento(k)
 
 
 def eliminar_memoria():
@@ -435,35 +427,23 @@ def eliminar_memoria():
         # print(list(c))
 
 
-dia = 0
-
-# Inicializa el día
-# Inicializa la lista de máquinas en mantenimiento y reparación
-maquinas_en_mantenimiento = []
-maquinas_en_reparación = []
-# Ejemplo de uso
-ejempplo = Cosechador(8, 1, 6)
-ej2 = Fumigador(9, 1, 255)
-eje3 = Tractor(4, 2, 300)
-cebolla = Cosechador(1, 1, 6)
-
-lista_maquinas = [ejempplo, ej2, eje3]
+# Configuración inicial
+dia = 1
 tecnico1 = Serviciotecnico("Juan", 123456, "Cosechador")
 tecnico2 = Serviciotecnico("Sofía", 987654, "Fumigador")
 tecnico3 = Serviciotecnico("Julio", 147258, "Tractor")
+maquinas_en_mantenimiento = []
+lista_tecnicos = [tecnico1, tecnico2, tecnico3]
 
-ejempplo.mostrar_historial()
-lista_tecnicos = [tecnico1, tecnico2, tecnico3, cebolla]
-Mantenimiento.iniciar_mantenimiento(ejempplo)
-Mantenimiento.iniciar_mantenimiento(cebolla)
-Mantenimiento.iniciar_mantenimiento(eje3)
-# eje3.mostrar_historial()
-Mantenimiento.iniciar_mantenimiento(ej2)
-# ej2.mostrar_historial()
-nuevo_dia()
+# Prueba paso a paso
+maquina = Cosechador(8, 100, 1)  # Mantenimiento: 1 día
+print(f"Estado inicial de Juan: {lista_tecnicos[0].get_laborando()}")  # Correcto
+# Asignar mantenimiento
+Mantenimiento.iniciar_mantenimiento(maquina)  # Juan debe estar ocupado ahora
+print(f"Estado de Juan después de asignar: {lista_tecnicos[0].get_laborando()}")  # True (ocupado)
 
-Mantenimiento.iniciar_mantenimiento(ejempplo)
-ejempplo.mostrar_historial()
-# mover_tractor(eje3,ej2,ejempplo)
+# Avanzar día
+nuevo_dia()  # Completa el mantenimiento
+print(f"Estado de Juan después de nuevo_dia(): {lista_tecnicos[0].get_laborando()}")  # False (liberado)
 input("Presione Enter para continuar...")
 eliminar_memoria()
