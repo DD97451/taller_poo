@@ -1,6 +1,7 @@
 import random
 import os
 import time
+from datetime import datetime
 def limpiar():
     os.system("cls" if os.name == "nt" else "clear")
 def tuerca_lateral_animada(frame):
@@ -249,8 +250,28 @@ class Maquinaria:
         return  self._mantenimiento_privado
     def activar_desactivar(self):
         self.en_uso= not self.en_uso
-    def historial_mantenimiento(self):
-        pass
+
+    def subir_historial(self, accion, tecnico_nombre):
+        """Registra un evento en el historial de la máquina."""
+        nombre_archivo = f"historial_{self._num_serial}.txt"
+        fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        linea = f"{fecha_hora} | {accion} | Técnico: {tecnico_nombre}\n"
+
+        try:
+            with open(nombre_archivo, "a", encoding="utf-8") as archivo:
+                archivo.write(linea)
+        except Exception as e:
+            print(f"Error al guardar el historial: {e}")
+
+    def mostrar_historial(self):
+        nombre_archivo = f"historial_{self._num_serial}.txt"
+        try:
+            with open(nombre_archivo, "r", encoding="utf-8") as archivo:
+                print(f"\nHistorial de la máquina {self._num_serial}:")
+                print(archivo.read())
+        except FileNotFoundError:
+            print("No hay historial registrado.")
+
 
 
 class Tractor(Maquinaria):
@@ -317,19 +338,20 @@ class Mantenimiento:
             tipo="Tractor"
         else:
             print("hay un error")
-        
-        if maquina.mantenimiento==0:
-            print(f"El tiempo de mantenimiento optimo para el {tipo} {maquina.get_serial()} ha caducado, intente hacer reparación")
-            pass
-        else:
-            tecnico=seleccionar_tecnico(tipo)
-            if tecnico is not None:
-                tecnico.cambiar_estado()
-                maquina.mantenimiento=maquina.get_mantenimiento_privado()
-                maquinas_en_mantenimiento.append(maquina)
-                for x in maquinas_en_mantenimiento:
-                    print(x.get_serial())
-                print(f"El tecnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina.get_serial()}, estará disponible mañana")
+
+        if maquina.mantenimiento == 0:
+            print(
+                f"El tiempo de mantenimiento óptimo para el {tipo} {maquina.get_serial()} ha caducado. Intente hacer reparación.")
+            return
+
+        tecnico = seleccionar_tecnico(tipo)
+        if tecnico is not None:
+            tecnico.cambiar_estado()
+            maquina.mantenimiento = maquina.get_mantenimiento_privado()
+            maquinas_en_mantenimiento.append(maquina)
+            maquina.subir_historial("Mantenimiento preventivo", tecnico.get_nombre())  # <-- Añade esto
+            print(
+                f"El técnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina.get_serial()}. Estará disponible mañana.")
     @staticmethod
     def reparar(maquina):
         if isinstance(maquina, (Cosechador, Fumigador, Tractor)):
@@ -342,7 +364,7 @@ class Mantenimiento:
             tecnico = seleccionar_tecnico(tipo)
             if tecnico:
                 print(f"🔧 El técnico {tecnico.get_nombre()} comenzó la reparación del {tipo} {maquina.get_serial()}. estará disponible en dos díasj")
-                maquina.mantenimiento = maquina._mantenimiento_privado  # Restaura el mantenimiento
+                maquina.mantenimiento = maquina.get_mantenimiento_privado()  # Restaura el mantenimiento
                 maquinas_en_reparacion.append(maquina)
             else:
                 print(f"⚠️ No hay técnicos disponibles para reparar el {tipo} {maquina.get_serial()}.")
