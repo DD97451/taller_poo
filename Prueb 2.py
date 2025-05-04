@@ -3,11 +3,11 @@ import os
 import time
 from datetime import datetime
 
-from PIL.ImImagePlugin import split
-
 
 def limpiar():
     os.system("cls" if os.name == "nt" else "clear")
+
+
 def tuerca_lateral_animada(frame):
     tuerca_frames = [
         "    _____\n   /       \\\n  |   o o   |\n   \\_______/",
@@ -16,6 +16,7 @@ def tuerca_lateral_animada(frame):
         "    _____\n   /   o   \\\n  |     o   |\n   \\_______/",
     ]
     return tuerca_frames[frame % len(tuerca_frames)]
+
 
 def tractor_reparacion(frame):
     tuerca = tuerca_lateral_animada(frame)
@@ -29,19 +30,18 @@ def tractor_reparacion(frame):
 
      🔧 EN REPARACIÓN 🔧"""
 
+
 def tractor_podadora_reparacion(frame):
     base = tractor_reparacion(frame)
     return base.replace("EN REPARACIÓN", "EN REPARACIÓN (podadora)")
 
 
-
-
-
 def tractor_fumigador_reparacion(frame):
     base = tractor_reparacion(frame)
     return base.replace("EN REPARACIÓN", "EN REPARACIÓN (fumigador)")
-def mover_tractor(objeto1,objeto2,objeto3):
 
+
+def mover_tractor(objeto1, objeto2, objeto3):
     # ---------------- TRACTOR NORMAL ----------------
 
     def tractor_funcionando(pos):
@@ -159,18 +159,18 @@ def mover_tractor(objeto1,objeto2,objeto3):
     ( x )         (   )     ¡FALLÓ fumigando!"""
 
     # ---------------- MOVIMIENTO ----------------
-    for l in [objeto1,objeto2,objeto3]:
-        if isinstance(l,Tractor):
+    for l in [objeto1, objeto2, objeto3]:
+        if isinstance(l, Tractor):
             funcionando1 = tractor_funcionando
             reversa1 = tractor_funcionando_reversa
             exito1 = tractor_estatico_exitoso
             fallo1 = tractor_danado
-        elif isinstance(l,Fumigador):
+        elif isinstance(l, Fumigador):
             funcionando2 = tractor_fumigador_funcionando
             reversa2 = tractor_fumigador_funcionando_reversa
             exito2 = tractor_fumigador_estatico_exitoso
             fallo2 = tractor_fumigador_danado
-        elif isinstance(l,Cosechador):
+        elif isinstance(l, Cosechador):
             funcionando3 = tractor_podadora_funcionando
             reversa3 = tractor_podadora_funcionando_reversa
             exito3 = tractor_podadora_estatico_exitoso
@@ -193,7 +193,7 @@ def mover_tractor(objeto1,objeto2,objeto3):
     objeto1.trabajar()
     objeto2.trabajar()
     objeto3.trabajar()
-    if [objeto1.mantenimiento,objeto2.mantenimiento,objeto3.mantenimiento]==[0,0,0] :
+    if [objeto1.mantenimiento, objeto2.mantenimiento, objeto3.mantenimiento] == [0, 0, 0]:
         for i in range(6):
             limpiar()
             print(fallo1(i))
@@ -203,23 +203,24 @@ def mover_tractor(objeto1,objeto2,objeto3):
     else:
         for i in range(6):
             limpiar()
-            if objeto1.mantenimiento==0:
+            if objeto1.mantenimiento == 0:
                 print(fallo1(i))
             else:
                 print(exito1())
-            if objeto2.mantenimiento==0:
+            if objeto2.mantenimiento == 0:
                 print(fallo2(i))
             else:
                 print(exito2())
-            if objeto3.mantenimiento==0:
+            if objeto3.mantenimiento == 0:
                 print(fallo3(i))
             else:
                 print(exito3())
             time.sleep(0.5)
 
+
 def azar(multiplicador):
-    eleccion=random.randrange(0,2)
-    if eleccion ==1:
+    eleccion = random.randrange(0, 2)
+    if eleccion == 1:
         return True
     else:
         return False
@@ -227,39 +228,47 @@ def azar(multiplicador):
 
 def seleccionar_tecnico(tipo):
     for i in lista_tecnicos:
-        if i.maquinaria==tipo:
+        if i.maquinaria == tipo:
             if not i.get_laborando():
                 print(f"No hay tecnicos disponibles para el tipo {tipo}")
                 return None
             else:
                 return i
 
-maquinas_en_mantenimiento=[]
-maquinas_en_reparacion=[]
+
+maquinas_en_mantenimiento = []
+maquinas_en_reparacion = []
+
 
 class Maquinaria:
-    def __init__(self,num_serial, tank_fuel, mantenimiento, en_uso=True):#la hora de mantenimiento es el tiempo de uso antes de un mantenimiento
-        self._num_serial=num_serial
-        self._tank_fuel=tank_fuel
-        self.mantenimiento=mantenimiento#las horas de cada cuanto se hace el mantenimiento
-        self._mantenimiento_privado = mantenimiento#las horas de referencia
-        self.en_uso=en_uso
+    def __init__(self, num_serial, tank_fuel, mantenimiento,
+                 en_uso=True):  # la hora de mantenimiento es el tiempo de uso antes de un mantenimiento
+        self._num_serial = num_serial
+        self._tank_fuel = tank_fuel
+        self.mantenimiento = mantenimiento  # las horas de cada cuanto se hace el mantenimiento
+        self._mantenimiento_privado = mantenimiento  # las horas de referencia
+        self.en_uso = en_uso
+
     def get_info(self):
         print(self._tank_fuel, self.mantenimiento, self.en_uso)
+
     def get_serial(self):
         return self._num_serial
+
     def get_mantenimiento(self):
         return self._mantenimiento_privado
-    def get_mantenimiento_privado(self):
-        return  self._mantenimiento_privado
-    def activar_desactivar(self):
-        self.en_uso= not self.en_uso
 
-    def subir_historial(self, accion, tecnico_nombre):
+    def get_mantenimiento_privado(self):
+        return self._mantenimiento_privado
+
+    def activar_desactivar(self):
+        self.en_uso = not self.en_uso
+
+    def subir_historial(self, accion, tecnico_nombre, dia):
         """Registra un evento en el historial de la máquina."""
         nombre_archivo = f"historial_{self._num_serial}.txt"
-        fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        linea = f"{fecha_hora} | {accion} | Técnico: {tecnico_nombre}\n"
+        # fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        linea = f"Día {dia} | {accion} | Técnico: {tecnico_nombre}\n"
 
         try:
             with open(nombre_archivo, "a", encoding="utf-8") as archivo:
@@ -277,69 +286,76 @@ class Maquinaria:
             print("No hay historial registrado.")
 
 
-
 class Tractor(Maquinaria):
-    def __init__(self,num_serial, tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial,tank_fuel, mantenimiento, en_uso)
+    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
+        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
+
     def trabajar(self):
-        tiempo_restante=self.mantenimiento
-        result=azar(self.mantenimiento)
+        tiempo_restante = self.mantenimiento
+        result = azar(self.mantenimiento)
         if not result:
-            tiempo_restado=random.randrange(0,tiempo_restante+1)
+            tiempo_restado = random.randrange(0, tiempo_restante + 1)
             self.mantenimiento = self.mantenimiento - tiempo_restado
         return result
 
 
 class Fumigador(Maquinaria):
-    def __init__(self, num_serial,tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial,tank_fuel, mantenimiento, en_uso)
+    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
+        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
+
     def trabajar(self):
-        tiempo_restante=self.mantenimiento
-        result=azar(self.mantenimiento)
+        tiempo_restante = self.mantenimiento
+        result = azar(self.mantenimiento)
         if not result:
-            tiempo_restado=random.randrange(0,tiempo_restante+1)
+            tiempo_restado = random.randrange(0, tiempo_restante + 1)
             self.mantenimiento = self.mantenimiento - tiempo_restado
         return result
 
 
 class Cosechador(Maquinaria):
-    def __init__(self,num_serial, tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial,tank_fuel, mantenimiento, en_uso)
+    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
+        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
 
     def trabajar(self):
-        tiempo_restante=self.mantenimiento
-        result=azar(self.mantenimiento)
+        tiempo_restante = self.mantenimiento
+        result = azar(self.mantenimiento)
         if not result:
-            tiempo_restado=random.randrange(0,tiempo_restante+1)
+            tiempo_restado = random.randrange(0, tiempo_restante + 1)
             self.mantenimiento = self.mantenimiento - tiempo_restado
         return result
 
 
 class Serviciotecnico:
-    def __init__(self,nombre,identificacion,maquinaria,laborando=True):
-        self._nombre=nombre
-        self._identificacion=identificacion
-        self.maquinaria=maquinaria
-        self._laborando=laborando
+    def __init__(self, nombre, identificacion, maquinaria, laborando=True):
+        self._nombre = nombre
+        self._identificacion = identificacion
+        self.maquinaria = maquinaria
+        self._laborando = laborando
+
     def cambiar_estado(self):
-        self._laborando=not self._laborando
+        self._laborando = not self._laborando
+
     def get_nombre(self):
         return self._nombre
+
     def get_laborando(self):
         return self._laborando
 
 
-
-
 class Mantenimiento:
+    def __init__(self, maquina, tecnico, día):
+        self.maquina = maquina
+        self.tecnico = tecnico
+        self.día = día
+
     @staticmethod
     def iniciar_mantenimiento(maquina):
-        if isinstance(maquina,Cosechador):
-            tipo="Cosechador"
-        elif isinstance(maquina,Fumigador):
-            tipo="Fumigador"
-        elif isinstance(maquina,Tractor):
-            tipo="Tractor"
+        if isinstance(maquina, Cosechador):
+            tipo = "Cosechador"
+        elif isinstance(maquina, Fumigador):
+            tipo = "Fumigador"
+        elif isinstance(maquina, Tractor):
+            tipo = "Tractor"
         else:
             print("hay un error")
 
@@ -352,49 +368,102 @@ class Mantenimiento:
         if tecnico is not None:
             tecnico.cambiar_estado()
             maquina.mantenimiento = maquina.get_mantenimiento_privado()
-            maquinas_en_mantenimiento.append(maquina)
-            maquina.subir_historial("Mantenimiento preventivo", tecnico.get_nombre())  # <-- Añade esto
+            maquina_agregar = Mantenimiento(maquina, tecnico, dia)
+            maquinas_en_mantenimiento.append(maquina_agregar)
+            maquina.subir_historial("Mantenimiento preventivo", tecnico.get_nombre(), dia)  # <-- Añade esto
             print(
                 f"El técnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina.get_serial()}. Estará disponible mañana.")
+
     @staticmethod
     def reparar(maquina):
         if isinstance(maquina, (Cosechador, Fumigador, Tractor)):
             tipo = maquina.__class__.__name__
-            
+
             if maquina.mantenimiento > 0:
                 print(f"El {tipo} {maquina.get_serial()} no necesita reparación.")
                 return
-            
+
             tecnico = seleccionar_tecnico(tipo)
             if tecnico:
-                print(f"🔧 El técnico {tecnico.get_nombre()} comenzó la reparación del {tipo} {maquina.get_serial()}. estará disponible en dos díasj")
+                print(
+                    f"🔧 El técnico {tecnico.get_nombre()} comenzó la reparación del {tipo} {maquina.get_serial()}. estará disponible en dos díasj")
                 maquina.mantenimiento = maquina.get_mantenimiento_privado()  # Restaura el mantenimiento
-                maquinas_en_reparacion.append(maquina)
+                maquina_reparar = Mantenimiento(maquina, tecnico, dia)
+                maquinas_en_reparacion.append(maquina_reparar)
             else:
                 print(f"⚠️ No hay técnicos disponibles para reparar el {tipo} {maquina.get_serial()}.")
 
 
-ejempplo=Cosechador(1,1,110)
-ej2=Fumigador(2,1,255)
-eje3=Tractor(3,2,300)
+def nuevo_dia():
+    global dia
+    dia += 1
+    print(f"Hoy es el día {dia}.")
+    for i in maquinas_en_mantenimiento:
+        if i.maquina.mantenimiento > 0:
+            i.maquina.mantenimiento -= 1
+        if i.maquina.mantenimiento == 0:
+            print(f"El {i.maquina.__class__.__name__} {i.maquina.get_serial()} ha completado su mantenimiento.")
+            i.tecnico.cambiar_estado()
+            maquinas_en_mantenimiento.remove(i)
+    for j in maquinas_en_reparacion:
+        if j.maquina.mantenimiento > 0:
+            j.maquina.mantenimiento -= 1
+        if j.maquina.mantenimiento == 0:
+            print(f"El {j.maquina.__class__.__name__} {j.maquina.get_serial()} ha sido reparado.")
+            j.tecnico.cambiar_estado()
+            maquinas_en_reparacion.remove(j)
+    for k in lista_maquinas:
+        if k.get_mantenimiento() > 0:
+            print(f"El {k.__class__.__name__} {k.get_serial()} está funcionando correctamente.")
+            k.mantenimiento = k.mantenimiento - 6
+            print(
+                f"El {k.__class__.__name__} {k.get_serial()} tiene {k.mantenimiento} horas de mantenimiento restante.")
+            if k.mantenimiento <= 6:
+                print(f"El {k.__class__.__name__} {k.get_serial()} está a punto de necesitar mantenimiento.")
+        elif k.mantenimiento <= 0:
+            print(f"El {k.__class__.__name__} {k.get_serial()} necesita reparación.")
+            Mantenimiento.iniciar_mantenimiento(k)
 
-tecnico1=Serviciotecnico("Juan",123456,"Cosechador")
-tecnico2=Serviciotecnico("Sofía",987654,"Fumigador")
-tecnico3=Serviciotecnico("Julio",147258,"Tractor")
 
-
-lista_tecnicos=[tecnico1,tecnico2, tecnico3]
-Mantenimiento.iniciar_mantenimiento(eje3)
-Mantenimiento.iniciar_mantenimiento(ej2)
-eje3.mostrar_historial()
-ej2.mostrar_historial()
-#mover_tractor(eje3,ej2,ejempplo)
-#sleep(3)
 def eliminar_memoria():
     current_directory = os.getcwd()
     entries = os.listdir(current_directory)
-    print(entries) # Returns ['my_data, 'airbnb_data.csv']
+    print(entries)  # Returns ['my_data, 'airbnb_data.csv']
     for c in entries:
-        if c.split('.')[1]=='txt':
+        if c.split('.')[1] == 'txt':
             os.remove(c)
-        print(list(c))
+        # print(list(c))
+
+
+dia = 0
+
+# Inicializa el día
+# Inicializa la lista de máquinas en mantenimiento y reparación
+maquinas_en_mantenimiento = []
+maquinas_en_reparación = []
+# Ejemplo de uso
+ejempplo = Cosechador(8, 1, 6)
+ej2 = Fumigador(9, 1, 255)
+eje3 = Tractor(4, 2, 300)
+cebolla = Cosechador(1, 1, 6)
+
+lista_maquinas = [ejempplo, ej2, eje3]
+tecnico1 = Serviciotecnico("Juan", 123456, "Cosechador")
+tecnico2 = Serviciotecnico("Sofía", 987654, "Fumigador")
+tecnico3 = Serviciotecnico("Julio", 147258, "Tractor")
+
+ejempplo.mostrar_historial()
+lista_tecnicos = [tecnico1, tecnico2, tecnico3, cebolla]
+Mantenimiento.iniciar_mantenimiento(ejempplo)
+Mantenimiento.iniciar_mantenimiento(cebolla)
+Mantenimiento.iniciar_mantenimiento(eje3)
+# eje3.mostrar_historial()
+Mantenimiento.iniciar_mantenimiento(ej2)
+# ej2.mostrar_historial()
+nuevo_dia()
+
+Mantenimiento.iniciar_mantenimiento(ejempplo)
+ejempplo.mostrar_historial()
+# mover_tractor(eje3,ej2,ejempplo)
+input("Presione Enter para continuar...")
+eliminar_memoria()
