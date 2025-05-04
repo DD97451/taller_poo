@@ -371,8 +371,8 @@ class Mantenimiento:
 
 
 ejempplo=Cosechador(1,1,110)
-ej2=Fumigador(1,1,255)
-eje3=Tractor(1,2,300)
+ej2=Fumigador(2,1,255)
+eje3=Tractor(3,2,300)
 
 tecnico1=Serviciotecnico("Juan",123456,"Cosechador")
 tecnico2=Serviciotecnico("Sofía",987654,"Fumigador")
@@ -381,5 +381,8 @@ tecnico3=Serviciotecnico("Julio",147258,"Tractor")
 
 lista_tecnicos=[tecnico1,tecnico2, tecnico3]
 Mantenimiento.iniciar_mantenimiento(eje3)
+Mantenimiento.iniciar_mantenimiento(ej2)
+eje3.mostrar_historial()
+ej2.mostrar_historial()
 #mover_tractor(eje3,ej2,ejempplo)
 #sleep(3)
