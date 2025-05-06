@@ -1171,13 +1171,6 @@ maquinas_trabajan = [maquina2]
 nuevo_dia(maquinas_trabajan)
 # Prueba paso a paso
 Mantenimiento.iniciar_mantenimiento(maquina2)  # Juan debe estar ocupado ahora
-# Mantenimiento.iniciar_mantenimiento(maquina2)
-# print(f"Estado inicial de Juan: {lista_tecnicos[0].get_laborando()}")  # Correcto
-# Asignar mantenimiento
-# j.iniciar_mantenimiento(maquina1)  # Juan debe estar ocupado ahora
-# j.iniciar_mantenimiento(maquina2)  # Juan debe estar ocupado ahora
-
-# print(f"Estado de Juan después de asignar: {lista_tecnicos[0].get_laborando()}")  # True (ocupado)
 
 # Avanzar día
 maquina1.mostrar_historial()
