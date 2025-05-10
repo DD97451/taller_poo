@@ -462,7 +462,7 @@ def menu(maquinas):
 def agregar_maquina():
     while True:
         try:
-            elección = input(f"¿Qué tipo de máquina desea agregar?\n1. Cosechador\n2. Fumigador\n3. Tractor: \n")
+            eleccion = input(f"¿Qué tipo de máquina desea agregar?\n1. Cosechador\n2. Fumigador\n3. Tractor: \n")
         except ValueError:
             print("Opción no válida. Intente de nuevo.")
             continue
@@ -489,13 +489,13 @@ def agregar_maquina():
                 print(e)
                 continue
 
-        if elección == "1":
+        if eleccion == "1":
             nueva_maquina = Cosechador(serial, 100, horas_mantenimiento)
 
-        elif elección == "2":
+        elif eleccion == "2":
             nueva_maquina = Fumigador(serial, 100, horas_mantenimiento)
 
-        elif elección == "3":
+        elif eleccion == "3":
             nueva_maquina = Tractor(serial, 100, horas_mantenimiento)
 
         else:

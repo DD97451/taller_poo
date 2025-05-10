@@ -1,4 +1,9 @@
-import tkinter
+
+
+
+
+
+
 from time import sleep
 from tkinter import CENTER,StringVar
 import customtkinter as ctk
@@ -31,7 +36,7 @@ class Menu:
         scroll_menu=(ctk.CTkScrollableFrame(master=self.__ventana, width=600, height=600))
         scroll_menu.place(relx=0.5,rely=2.34/4,anchor=CENTER)
         #??COLUMNA 1
-        listado_maquina_imagen=ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),#todo imagen del titutlo de lista de maquinas
+        listado_maquina_imagen=ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),#° imagen del titutlo de lista de maquinas
                                     size=(100, 100))
         lista_maquina=ctk.CTkButton(scroll_menu,
                                         image=listado_maquina_imagen,
@@ -166,7 +171,7 @@ class Ventana_lista():
         # ?Configuracioón ventana(lista de maquinas registradas)
         self.tipo_tractor=tipo_tractor
         self.ventana_maquinas = ctk.CTkToplevel()
-        self.ventana_maquinas.geometry('300x400')  # todo Tamaño 2 vemtana
+        self.ventana_maquinas.geometry('300x400')  # ° Tamaño 2 vemtana
         self.ventana_maquinas.attributes('-topmost', True)
 
         # ? Funciones de segunda ventana
