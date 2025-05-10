@@ -270,7 +270,7 @@ def nuevo_dia(maquinas_trabajar=None):
     dia += 1
     print(f"\n--- DÍA {dia} ---")
 
-    # Restar 1 hora de mantenimiento por día trabajado a las máquinas activas
+    # Restar 1 hora de mantenimiento por dia trabajado a las máquinas activas
     if maquinas_trabajar:
         mover_tractor(maquinas_trabajar)
         for maquina in maquinas_trabajar:
@@ -365,7 +365,7 @@ def menu(maquinas):
         print("2. Enviar máquinas a trabajar")
         print("3. Programar mantenimiento preventivo")
         print("4. Reparar máquina averiada")
-        print("5. Avanzar al siguiente día")
+        print("5. Avanzar al siguiente dia")
         print("6. Ver historial de una máquina")
         print("7. Agregar Máquina")
         print("8. Salir del sistema")
@@ -436,7 +436,7 @@ def menu(maquinas):
         elif opcion == "5":
             print("\n--- AVANZAR AL SIGUIENTE DÍA ---")
             nuevo_dia(maquinas_trabajando)
-            print("Nuevo día procesado.")
+            print("Nuevo dia procesado.")
             maquinas_trabajando = []
 
         elif opcion == "6":
@@ -612,10 +612,10 @@ class Serviciotecnico:
 
 
 class Mantenimiento:
-    def __init__(self, maquina, tecnico, día):
+    def __init__(self, maquina, tecnico, dia):
         self.maquina = maquina
         self.tecnico = tecnico
-        self.día = día
+        self.dia = dia
 
     @staticmethod
     def iniciar_mantenimiento(maquina_seleccionada):
