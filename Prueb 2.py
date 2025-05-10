@@ -1,7 +1,7 @@
 import random
 import os
 import time
-
+horas_trabajada=24
 maquinas_en_mantenimiento = []
 maquinas_en_reparacion = []
 
@@ -228,7 +228,7 @@ def mover_tractor(lista_objetos):
             print("No hay máquinas trabajando.")
             time.sleep(0.5)
     else:
-        # Mantén el código original aquí
+
         for i in range(6):
             limpiar()
             if not objeto1 is None:
@@ -275,9 +275,14 @@ def nuevo_dia(maquinas_trabajar=None):
         mover_tractor(maquinas_trabajar)
         for maquina in maquinas_trabajar:
             if maquina.mantenimiento > 0:
-                maquina.mantenimiento -= 1
-                print(
-                    f"{maquina.__class__.__name__} #{maquina.get_serial()} trabajó. Horas restantes: {maquina.mantenimiento}")
+                maquina.mantenimiento -= horas_trabajada
+                if maquina.mantenimiento >0:
+                    print(
+                        f"{maquina.__class__.__name__} #{maquina.get_serial()} trabajó{horas_trabajada}. Horas restantes: {maquina.mantenimiento}")
+                else:
+                    print(
+                        f"¡Atención! {maquina.__class__.__name__} #{maquina.get_serial()} necesita mantenimiento urgente.")
+
             else:
                 print(
                     f"¡Atención! {maquina.__class__.__name__} #{maquina.get_serial()} necesita mantenimiento urgente.")
@@ -297,9 +302,6 @@ def nuevo_dia(maquinas_trabajar=None):
             j.tecnico.cambiar_estado()
             maquinas_en_reparacion.remove(j)
 
-    # Resta del tiempo por el paso del dia
-    """for x in maquinas_trabajar:
-        x."""
 
 
 def eliminar_memoria():
@@ -351,7 +353,7 @@ def menu(maquinas):
     maquinas_trabajando = []
 
     while True:
-        input("Presione Enter para continuar...")
+        time.sleep(1)
         limpiar()
         time.sleep(0.5)
 
@@ -651,8 +653,7 @@ class Mantenimiento:
             maquina_seleccionada.mantenimiento = maquina_seleccionada.get_mantenimiento_privado()
             maquina_agregar = Mantenimiento(maquina_seleccionada, tecnico, dia)
             maquinas_en_mantenimiento.append(maquina_agregar)
-            maquina_seleccionada.subir_historial("Mantenimiento preventivo", tecnico.get_nombre(),
-                                                 dia)  # <-- Añade esto
+            maquina_seleccionada.subir_historial("Mantenimiento preventivo", tecnico.get_nombre(),dia)  # <-- Añade esto
 
             print(
                 f"El técnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina_seleccionada.get_serial()}. Estará disponible mañana.")
@@ -712,7 +713,7 @@ tecnico2 = Serviciotecnico("Sofía", 987654, "Fumigador")
 tecnico3 = Serviciotecnico("Julio", 147258, "Tractor")
 
 # Instancia de máquinas
-maquina1 = Cosechador("C1", 100, 1)
+maquina1 = Cosechador("C1", 100, 13)
 maquina2 = Fumigador("F1", 100, 5)
 maquina3 = Tractor("T1", 100, 5)
 maquina4 = Cosechador("C2", 100, 5)
