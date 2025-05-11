@@ -258,11 +258,26 @@ def azar(multiplicador):
 
 
 def seleccionar_tecnico(tipo):
+    lista_disponibles = []
     for i in lista_tecnicos:
         if i.maquinaria == tipo and not i.get_laborando():  # Busca técnicos LIBRES
-            return i
-    print(f"No hay técnicos disponibles para el tipo {tipo}")
-    return None
+            lista_disponibles.append(i)
+            print("Seleccione un técnico:")
+            for j in enumerate(lista_disponibles):
+                print(f"{j[0] + 1}. {j[1].get_nombre()} (ID: {j[1].get_identificacion()})")
+    if lista_disponibles:
+        while True:
+            try:
+                seleccion = int(input("Seleccione el número del técnico: ")) - 1
+                if seleccion < 0 or seleccion >= len(lista_disponibles):
+                    raise ValueError("Selección no válida.")
+                return lista_disponibles[seleccion]
+            except ValueError:
+                print("Selección no válida. Intente de nuevo.")
+                continue
+    else:        
+        print(f"No hay técnicos disponibles para el tipo {tipo}")
+        return None
 
 
 def nuevo_dia(maquinas_trabajar=None):
@@ -348,11 +363,13 @@ def tuerca_lateral_animada(frame):
     ]
     return tuerca_frames[frame % len(tuerca_frames)]
 
+contrasena = "1234"
 
 def menu(maquinas):
     maquinas_trabajando = []
 
     while True:
+        input
         time.sleep(1)
         limpiar()
         time.sleep(0.5)
@@ -368,7 +385,10 @@ def menu(maquinas):
         print("5. Avanzar al siguiente dia")
         print("6. Ver historial de una máquina")
         print("7. Agregar Máquina")
-        print("8. Salir del sistema")
+        print("8. Agregar Técnico")
+        print("9. Ver técnicos")
+        print("10. Salir del sistema")
+        print("-" * 40)
 
         opcion = input("Seleccione una opción: ")
 
@@ -420,10 +440,16 @@ def menu(maquinas):
             print("\n--- PROGRAMAR MANTENIMIENTO PREVENTIVO ---")
             for i, maquina in enumerate(maquinas):
                 print(f"{i + 1}. {maquina.get_serial()}")
-            idx = int(input("Seleccione el número de la máquina: ")) - 1
-            if 0 <= idx < len(maquinas):
-                Mantenimiento.iniciar_mantenimiento(maquinas[idx])
-                print(f"{maquinas[idx].get_serial()} está en mantenimiento prentivo.")
+            while True:
+                try: 
+                    idx = int(input("Seleccione el número de la máquina: ")) - 1
+                    if 0 <= idx < len(maquinas):
+                        Mantenimiento.iniciar_mantenimiento(maquinas[idx])
+                        print(f"{maquinas[idx].get_serial()} está en mantenimiento prentivo.")
+                        break
+                except ValueError:
+                    print("Opción no válida. Intente de nuevo.")
+                    continue
 
         elif opcion == "4":
             print("\n--- REPARAR MÁQUINA AVERIADA ---")
@@ -446,15 +472,35 @@ def menu(maquinas):
             idx = int(input("Seleccione el número de la máquina: ")) - 1
             if 0 <= idx < len(maquinas):
                 maquinas[idx].mostrar_historial()
+            input("Presione Enter para continuar...")
         elif opcion == "7":
             print("\n--- AGREGAR MÁQUINA ---")
             agregar_maquina()
             print("Máquina agregada exitosamente.")
         elif opcion == "8":
-            print("\nSaliendo del sistema...")
-            eliminar_memoria()
-            break
-
+            print("\n--- AGREGAR TÉCNICO ---")
+            agregar_tecnico()
+            print("Técnico agregado exitosamente.") 
+        elif opcion == "9":
+            print("\n--- VER TÉCNICOS ---")
+            ver_tecnicos()   
+        elif opcion == "10":
+            verificar = input("¿Está seguro de que desea salir? (s/n): ")
+            if verificar.lower() == "s":
+                password = input("Ingrese la contraseña para salir: ")
+                if password == contrasena:
+                    print("Contraseña correcta. Saliendo del sistema...")
+                    eliminar_memoria()
+                    break
+                else:
+                    print("Contraseña incorrecta. No se puede salir del sistema.")
+                    continue
+            elif verificar.lower() == "n":
+                print("Regresando al menú principal...")
+                continue    
+            else:
+                print("Opción no válida. Regresando al menú principal...")
+                continue
         else:
             print("Opción no válida. Intente de nuevo.")
 
@@ -477,7 +523,7 @@ def agregar_maquina():
 
                 break
             except ValueError as e:
-                print(e)
+                print("Error: debe ingresar un número de serie válido.")
                 continue
         while True:
             try:
@@ -486,7 +532,7 @@ def agregar_maquina():
                     raise ValueError("Las horas de mantenimiento deben ser un número positivo.")
                 break
             except ValueError as e:
-                print(e)
+                print("Error: debe ingresar un número positivo.")
                 continue
 
         if eleccion == "1":
@@ -504,6 +550,64 @@ def agregar_maquina():
         # Agregar la nueva máquina a la lista de máquinas
         todas_las_maquinas.append(nueva_maquina)
         break
+
+
+def agregar_tecnico():
+    while True:
+        try:
+            nombre = input("Ingrese el nombre del técnico: ")
+            if not nombre:
+                print("El nombre no puede estar vacío.")
+                continue
+            else:
+                break
+        except ValueError:
+            print("el nombre no puede estar vacío.")
+            continue
+
+    while True:
+        try:
+            identificacion = int(input("Ingrese la identificación del técnico: "))
+            if identificacion <= 0:
+                print("La identificación debe ser un número positivo.")
+                continue
+            for i in lista_tecnicos:
+                if i.get_identificacion() == identificacion:
+                    raise ValueError("La identificación ya existe.")
+            break
+                
+        except ValueError:
+            print("Error: La identificación debe ser un número positivo.")
+            continue
+
+    while True:
+        try:
+            maquinaria = int(input("Ingrese el tipo de maquinaria que repara \n1. Cosechador'\n2. Fumigador\n3. Tractor: "))
+            if maquinaria not in [1, 2, 3]:
+                raise ValueError("Tipo de maquinaria no válido.")
+            else :
+                if maquinaria == 1:
+                    maquinaria = "Cosechador"
+                elif maquinaria == 2:
+                    maquinaria = "Fumigador"
+                elif maquinaria == 3:
+                    maquinaria = "Tractor"
+            break
+        except ValueError:
+            print("Error: debe ingresar un número entre 1 y 3.")
+            continue
+
+    nuevo_tecnico = Serviciotecnico(nombre, identificacion, maquinaria)
+    lista_tecnicos.append(nuevo_tecnico)
+
+
+def ver_tecnicos():
+    print("\n--- LISTADO DE TÉCNICOS ---")
+    for i, tecnico in enumerate(lista_tecnicos):
+        estado = "Libre" if not tecnico.get_laborando() else "Ocupado"
+        print(f"{i + 1}. {tecnico.get_nombre()} (ID: {tecnico.get_identificacion()}) - Estado: {estado}")
+    input("Presione Enter para continuar...")
+
 
 
 class Maquinaria:
@@ -531,13 +635,20 @@ class Maquinaria:
         self.en_uso = not self.en_uso
 
     def subir_historial(self, accion, tecnico_nombre, dia):
-        """Registra un evento en el historial de la máquina."""
+        hoy = time.localtime()
+        hoy = time.strftime("%Y-%m-%d", hoy)
         nombre_archivo = f"historial_{self._num_serial}.txt"
-        # fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        linea = f"Día {dia} | {accion} | Técnico: {tecnico_nombre}\n"
+        linea = f"📅 {hoy}| Día {dia} ||\n🔄 Actividad: {accion} |\n👨‍🔧 Técnico: {tecnico_nombre}||\n"
+        titulo =f"╔════════════════════════════════════════════════════════╗\n║              🛠️ MANTENIMIENTOS REGISTRADOS -  {self._num_serial}  🚜    ║\n╚════════════════════════════════════════════════════════╝\n"
+
 
         try:
+        # Verificar si el archivo ya existe
+            archivo_nuevo = not os.path.exists(nombre_archivo)
+
             with open(nombre_archivo, "a", encoding="utf-8") as archivo:
+                if archivo_nuevo:
+                    archivo.write(titulo)
                 archivo.write(linea)
         except Exception as e:
             print(f"Error al guardar el historial: {e}")
