@@ -1,5 +1,5 @@
 import Gestion
-from tkinter import CENTER,StringVar
+from tkinter import CENTER,StringVar,messagebox
 import customtkinter as ctk
 import os
 from PIL import Image,ImageTk
@@ -67,6 +67,20 @@ class Menu:
                                         command=self.pl
                                         ).grid(row=4, column=0, padx=10,pady=10)
 
+        ver_tecnicos_btn = ctk.CTkButton(
+            scroll_menu,
+            text="👨🔧 Ver Técnicos",
+            command=self.mostrar_ventana_tecnicos
+        )
+        ver_tecnicos_btn.grid(row=5, column=0, padx=10, pady=10)
+
+        agregar_tecnico_btn = ctk.CTkButton(
+            scroll_menu,
+            text="➕ Agregar Técnico",
+            command=self.mostrar_ventana_agregar_tecnico
+        )
+        agregar_tecnico_btn.grid(row=6, column=0, padx=10, pady=10)
+
 
         #?? COLUMNA 2
 
@@ -78,24 +92,6 @@ class Menu:
                                                 fg_color='blue')
         listado_maquina_preview.grid(row=0, column=1, padx=10)
         texto_previw_maquinas=ctk.CTkLabel(listado_maquina_preview,textvariable=self._text_preview).pack()
-
-        #/* previsualización de tipo de maquinas a enviar a trabajar
-
-        opciones_enviar_trabajar=ctk.CTkFrame(master=scroll_menu,
-                                                width=300,
-                                                height=100,
-                                                fg_color='red')
-        opciones_enviar_trabajar.grid(row=1, column=1, padx=10)
-        boton_tractor=ctk.CTkButton(opciones_enviar_trabajar,
-                                        text='54515').place(relx=1/3)
-        boton_fumigador=ctk.CTkButton(opciones_enviar_trabajar,
-                                        text='papapapa',
-                                        width=50,
-                                        height=50).place(relx=2/3)
-        boton_cosechador=ctk.CTkButton(opciones_enviar_trabajar,
-                                        text='adaswasd',
-                                        width=50,
-                                        height=50).place(relx=1 / 3,y=30)
 
         #/* previsualización de programar mantenimiento
 
@@ -140,8 +136,9 @@ class Menu:
                                                     width=50,
                                                     height=50).place(relx=1 / 3, y=30)
 
-        # /* previsualización de avanzar dia
 
+
+        # /* previsualización de avanzar dia
         apartado_avanzar_dia = ctk.CTkFrame(master=scroll_menu,
                                         width=300,
                                         height=100,
@@ -151,10 +148,35 @@ class Menu:
 
         boton_tractor_reparar = ctk.CTkLabel(apartado_avanzar_dia,
                                                 text='54515').place(relx=1 / 3)
+
+        agregar_maquina_btn = ctk.CTkButton(
+            scroll_menu,
+            text="➕ Agregar Máquina",
+            command=self.mostrar_ventana_agregar
+        )
+        agregar_maquina_btn.grid(row=6, column=1, padx=10, pady=10)
+
+
+
+
+
+
+
+
+
+
         self.__ventana.mainloop()
+
+    def mostrar_ventana_agregar(self):
+        VentanaAgregarMaquina(self.__ventana)
     def mostrar_ventana_lista(self):
         VentanaLista()
 
+    def mostrar_ventana_agregar_tecnico(self):
+        VentanaAgregarTecnico(self.__ventana)
+
+    def mostrar_ventana_tecnicos(self):
+        VentanaTecnicos()
 
     def actualizar_preview_maquinas(self):
         pass
@@ -164,10 +186,9 @@ class Menu:
         self._text_preview.set(archivo.read())
     def pl(self):
         pass
+
+
 class VentanaLista:
-    list_tractores = []
-    list_fumigadores = []
-    list_cosechadoras = []
     def __init__(self):
         #super().__init__(tipo_tractor)
         #? Clasificar las máquinas
@@ -183,16 +204,18 @@ class VentanaLista:
 
         # ? Funciones de segunda ventana
         def devolver():
-            self.tractor.pack()
-            self.fumigador.pack()
-            self.cosechador.pack()
+            self.tractor.pack(pady=10)
+            self.fumigador.pack(pady=10)
+            self.cosechador.pack(pady=10)
+            self.boton_enviar_trabajar.pack(pady=10)
             self.scroll_listas.pack_forget()
             self.devolver.pack_forget()
+
         def ocultar():# Oculta botones principales
             self.tractor.pack_forget()
             self.fumigador.pack_forget()
             self.cosechador.pack_forget()
-
+            self.boton_enviar_trabajar.pack_forget()
 
         def mostrar_botones():
             self.scroll_listas.pack(pady=5)
@@ -216,7 +239,6 @@ class VentanaLista:
                 label.pack()
                 self.labels_seriales.append(label)
 
-
         def mostrar_cosechador(lista_maquinas):
             # Limpiar widgets anteriores
             if hasattr(self, 'title_lisatado'):
@@ -235,8 +257,6 @@ class VentanaLista:
                 label.pack()
                 self.labels_seriales.append(label)
 
-
-
         def mostrar_fumigador(lista_maquinas):
             # Limpiar widgets anteriores
             if hasattr(self, 'title_lisatado'):
@@ -245,16 +265,14 @@ class VentanaLista:
                 for label in self.labels_seriales:
                     label.destroy()
 
-            # Crear nuevos elementos
             self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
             self.title_lisatado.pack()
-
+            #creacion automatica del listado
             self.labels_seriales = []
             for n, tractor in enumerate(lista_maquinas, 1):
                 label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
                 label.pack()
                 self.labels_seriales.append(label)
-
 
 
 
@@ -286,6 +304,14 @@ class VentanaLista:
             command=lambda: [mostrar_botones(), ocultar(), mostrar_cosechador(self.list_cosechadoras)])
         self.cosechador.pack(pady=5)
 
+        # ?? Enviar maquina a trabjar
+
+        self.boton_enviar_trabajar = ctk.CTkButton(
+            self.ventana_maquinas,
+            text="Enviar a Trabajar",
+            command=self.abrir_seleccion_maquinas
+        )
+        self.boton_enviar_trabajar.pack(pady=10)
 
         #?? Devolver
         self.devolver=ctk.CTkButton(self.ventana_maquinas,
@@ -293,6 +319,9 @@ class VentanaLista:
                                     command=devolver
                                     )
         self.devolver.pack_forget()
+
+
+
     @staticmethod
     def clasificar_tipo_maquina(lista_maquinas):
         tractores = []
@@ -311,6 +340,257 @@ class VentanaLista:
 
         return tractores, fumigadores, cosechadoras
 
+    def abrir_seleccion_maquinas(self):
+        VentanaSeleccionMaquinas(self.ventana_maquinas)
+
+class VentanaAgregarMaquina(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.acortadores=["Tractor", "Fumigador", "Cosechador"]
+
+        #? configuración ventana
+        self.title("Agregar Nueva Máquina")
+        self.geometry("400x300")
+
+        # Configuración de widgets
+        self.tipo_var = ctk.StringVar(value="Tractor")
+        self.serial_var = ctk.StringVar()
+        self.horas_var = ctk.StringVar()
+
+        # Tipo de máquina
+        ctk.CTkLabel(self, text="Tipo de Máquina:").pack(pady=5)
+        tipo_options = ctk.CTkComboBox(self, variable=self.tipo_var,
+                                        values=self.acortadores)
+        tipo_options.pack(pady=5)
+
+        # Número de serie
+        ctk.CTkLabel(self, text="Número de Serie:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.serial_var).pack(pady=5)
+
+        # Horas de mantenimiento
+        ctk.CTkLabel(self, text="Horas de Mantenimiento:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.horas_var).pack(pady=5)
+
+        # Botón de enviar
+        ctk.CTkButton(self, text="Registrar Máquina", command=self.validar_maquina).pack(pady=15)
+
+    def validar_maquina(self):
+        tipo = self.tipo_var.get()
+        serial = self.serial_var.get().strip()
+        horas = self.horas_var.get().strip()
+
+        # Validación de datos
+        if not serial:
+            messagebox.showerror("Error", "El número de serie es obligatorio")
+            return
+
+        if not horas.isdigit() or int(horas) <= 0:
+            messagebox.showerror("Error", "Horas de mantenimiento inválidas")
+            return
+
+        # Verificar serial único
+        if any(m.get_serial() == serial for m in Gestion.todas_las_maquinas):
+            messagebox.showerror("Error", "¡El número de serie ya existe!")
+            return
+
+        # Crear la máquina
+        horas_int = int(horas)
+        if tipo == "Tractor":
+            nueva_maquina = Gestion.Tractor(serial, 100, horas_int)
+        elif tipo == "Fumigador":
+            nueva_maquina = Gestion.Fumigador(serial, 100, horas_int)
+        elif tipo == "Cosechador":
+            nueva_maquina = Gestion.Cosechador(serial, 100, horas_int)
+
+        Gestion.todas_las_maquinas.append(nueva_maquina)
+        messagebox.showinfo("Éxito", "Máquina registrada correctamente")
+        self.destroy()
+
+
+class VentanaTecnicos(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
+        self.title("Listado de Técnicos")
+        self.geometry("400x500")
+
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=380, height=450)
+        self.scroll_frame.pack(pady=10, padx=10, fill="both", expand=True)
+
+        self.actualizar_lista()
+
+    def actualizar_lista(self):
+        # Limpiar frame
+        for widget in self.scroll_frame.winfo_children():
+            widget.destroy()
+
+        # Título
+        ctk.CTkLabel(self.scroll_frame,
+                        text="Técnicos Registrados",
+                        font=("Arial", 14, "bold")).pack(pady=5)
+
+        # Mostrar técnicos
+        if not Gestion.lista_tecnicos:
+            ctk.CTkLabel(self.scroll_frame,
+                            text="No hay técnicos registrados",
+                            text_color="gray").pack(pady=10)
+            return
+
+        for i, tecnico in enumerate(Gestion.lista_tecnicos, 1):
+            frame = ctk.CTkFrame(self.scroll_frame)
+            frame.pack(fill="x", pady=3, padx=5)
+
+            estado = "🟢 Libre" if not tecnico.get_laborando() else "🔴 Ocupado"
+            texto = (f"{i}. {tecnico.get_nombre()} | ID: {tecnico.get_identificacion()}\n"
+                        f"Especialidad: {tecnico.maquinaria} | Estado: {estado}")
+
+            ctk.CTkLabel(frame, text=texto, anchor="w").pack(side="left", padx=10)
+
+
+class VentanaAgregarTecnico(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Agregar Nuevo Técnico")
+        self.geometry("400x300")
+
+        # Variables
+        self.nombre_var = ctk.StringVar()
+        self.id_var = ctk.StringVar()
+        self.tipo_var = ctk.StringVar(value="Tractor")
+
+        # Widgets
+        ctk.CTkLabel(self, text="Nombre:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.nombre_var).pack(pady=5)
+
+        ctk.CTkLabel(self, text="ID:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.id_var).pack(pady=5)
+
+        ctk.CTkLabel(self, text="Especialidad:").pack(pady=5)
+        ctk.CTkComboBox(self, variable=self.tipo_var,
+                        values=["Tractor", "Fumigador", "Cosechador"]).pack(pady=5)
+
+        ctk.CTkButton(self, text="Registrar Técnico", command=self.validar_tecnico).pack(pady=15)
+
+    def validar_tecnico(self):
+        nombre = self.nombre_var.get().strip()
+        id_tecnico = self.id_var.get().strip()
+        tipo = self.tipo_var.get()
+
+        # Validaciones
+        if not nombre:
+            messagebox.showerror("Error", "El nombre es obligatorio")
+            return
+
+        if not id_tecnico.isdigit():
+            messagebox.showerror("Error", "El ID debe ser numérico")
+            return
+
+        # Verificar ID único
+        if any(t.get_identificacion() == int(id_tecnico) for t in Gestion.lista_tecnicos):
+            messagebox.showerror("Error", "¡El ID ya está registrado!")
+            return
+
+        # Crear técnico
+        nuevo_tecnico = Gestion.Serviciotecnico(
+            nombre=nombre,
+            identificacion=int(id_tecnico),
+            maquinaria=tipo
+        )
+
+        Gestion.lista_tecnicos.append(nuevo_tecnico)
+        messagebox.showinfo("Éxito", "Técnico registrado correctamente")
+        self.destroy()
+
+
+class VentanaSeleccionMaquinas(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Seleccionar Máquinas para Trabajar")
+        self.selecciones = []
+
+        # Configurar grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self,width=260,height=500)
+        self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Cargar imágenes
+        self.imagen_tractor = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))
+        self.imagen_fumigador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))
+        self.imagen_cosechador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))#!imagenes auxiliares, montar finales
+
+        self.construir_listado()
+
+    def obtener_estado_maquina(self, maquina):
+        # Verificar si está en mantenimiento o reparación
+        en_mantenimiento = any(m.maquina.get_serial() == maquina.get_serial()
+                                for m in Gestion.maquinas_en_mantenimiento)
+        en_reparacion = any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_reparacion)
+        return not (en_mantenimiento or en_reparacion)
+
+    def construir_listado(self):
+        # Obtener y clasificar máquinas
+        tractores = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Tractor)]
+        fumigadores = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Fumigador)]
+        cosechadoras = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Cosechador)]
+
+        # Crear tarjetas
+        row = 0
+        for tipo, maquinas, imagen in [
+            ("Tractor", tractores, self.imagen_tractor),
+            ("Fumigador", fumigadores, self.imagen_fumigador),
+            ("Cosechador", cosechadoras, self.imagen_cosechador)
+        ]:
+            if maquinas:
+                ctk.CTkLabel(self.scroll_frame, text=tipo,
+                                font=("Arial", 14, "bold")).grid(row=row, column=0, pady=10, sticky="n")
+                row += 1
+
+                for maquina in maquinas:
+                    frame = ctk.CTkFrame(self.scroll_frame,fg_color='red')#!quitar color de fondo
+                    frame.grid(row=row, column=0, pady=5, padx=5, sticky="ew")
+
+                    # Estado
+                    disponible = self.obtener_estado_maquina(maquina)
+
+                    # Imagen
+                    ctk.CTkLabel(frame, image=imagen, text="").grid(row=0, column=0, padx=10)
+
+                    # Serial
+                    ctk.CTkLabel(frame, text=maquina.get_serial()).grid(row=1, column=0)
+
+                    # Checkbox
+                    var = ctk.BooleanVar()
+                    chk = ctk.CTkCheckBox(frame, text="", variable=var)
+                    chk.grid(row=0, column=1, padx=10)
+
+                    if not disponible:
+                        chk.configure(state="disabled")
+                        frame.configure(fg_color="#3a3a3a")  # Color diferente para no disponibles
+
+                    self.selecciones.append((maquina, var))
+                    row += 1
+
+        # Botón de confirmar
+        btn_confirmar = ctk.CTkButton(self.scroll_frame, text="Confirmar Selección",
+                                        command=self.confirmar_seleccion)
+        btn_confirmar.grid(row=row, column=0, pady=20)
+
+    def confirmar_seleccion(self):
+        seleccionadas = [maquina for maquina, var in self.selecciones if var.get()]
+        # Aquí llamarías a la lógica de Gestion para enviar a trabajar
+        print("Máquinas seleccionadas:", [m.get_serial() for m in seleccionadas])
+
+        self.destroy()
 
 if __name__ == "__main__":
     Menu()
