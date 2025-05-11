@@ -1,36 +1,34 @@
-
-
-
-
-
-
-from time import sleep
+import Gestion
 from tkinter import CENTER,StringVar
 import customtkinter as ctk
 import os
 from PIL import Image,ImageTk
 
+
+
+#? Direcciones de las imagenes
 carpeta_master = os.path.dirname(__file__)
 carpeta_imagenes = os.path.join(carpeta_master, 'Imgen_interfaz')
 ctk.set_appearance_mode('dark')
 
 class Menu:
-    def __init__(self,):
+    def __init__(self):
+        #self.tipo_tractor=tipo_tractor
         self.__ventana=ctk.CTk()
         self._text_preview = StringVar()
-        #self.lista_maquinas=lista_maquina
+
 
 
         #configuracíon de ventana principal
         self.__ventana.title('Sistema de Gestión de Maquinaria')
         self.__ventana.geometry('500x800')
-        self.__ventana.iconbitmap(os.path.join('Imgen_interfaz', 'icono.ico'))
+        #self.__ventana.iconbitmap(os.path.join('Imgen_interfaz', 'icono.ico'))
         #configuracion de previe
 
         #? Titulo del menu
         titulo_imagen = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
                                     size=(100, 100))
-        titulo_ventana = ctk.CTkLabel(master=self.__ventana, image=titulo_imagen, text='titulo')
+        titulo_ventana = ctk.CTkLabel(master=self.__ventana,  text='titulo')
 
         #?Botones de elección
         scroll_menu=(ctk.CTkScrollableFrame(master=self.__ventana, width=600, height=600))
@@ -155,7 +153,7 @@ class Menu:
                                                 text='54515').place(relx=1 / 3)
         self.__ventana.mainloop()
     def mostrar_ventana_lista(self):
-        Ventana2=Ventana_lista()
+        VentanaLista()
 
 
     def actualizar_preview_maquinas(self):
@@ -166,60 +164,153 @@ class Menu:
         self._text_preview.set(archivo.read())
     def pl(self):
         pass
-class Ventana_lista():
-    def __init__(self,tipo_tractor):
+class VentanaLista:
+    list_tractores = []
+    list_fumigadores = []
+    list_cosechadoras = []
+    def __init__(self):
+        #super().__init__(tipo_tractor)
+        #? Clasificar las máquinas
+        self.list_tractores, self.list_fumigadores, self.list_cosechadoras = self.clasificar_tipo_maquina(Gestion.todas_las_maquinas)
+
         # ?Configuracioón ventana(lista de maquinas registradas)
-        self.tipo_tractor=tipo_tractor
         self.ventana_maquinas = ctk.CTkToplevel()
-        self.ventana_maquinas.geometry('300x400')  # ° Tamaño 2 vemtana
+        self.ventana_maquinas.geometry('300x500')  # ° Tamaño 2 vemtana
         self.ventana_maquinas.attributes('-topmost', True)
 
+        #?lista auxiliar
+
+
         # ? Funciones de segunda ventana
+        def devolver():
+            self.tractor.pack()
+            self.fumigador.pack()
+            self.cosechador.pack()
+            self.scroll_listas.pack_forget()
+            self.devolver.pack_forget()
         def ocultar():# Oculta botones principales
             self.tractor.pack_forget()
             self.fumigador.pack_forget()
             self.cosechador.pack_forget()
-        def mosrtrar_lista():
-            self.devolver.pack_forget()
-            self.tractor_lista.pack(pady=5)
+
+
+        def mostrar_botones():
+            self.scroll_listas.pack(pady=5)
             self.devolver.pack(pady=5)
+
+        def mostrar_tractores(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            # Crear nuevos elementos
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+
+        def mostrar_cosechador(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            # Crear nuevos elementos
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+
+
+        def mostrar_fumigador(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            # Crear nuevos elementos
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+
+
+
+
         # ? Botones segunda ventana
-
+        #?? Deslizable de lista de tractores
+        self.scroll_listas = ctk.CTkScrollableFrame(self.ventana_maquinas, fg_color='purple',height=400)
+        self.scroll_listas.pack_forget()
         # ?? Tractor
-        self.tractor= ctk.CTkButton(self.ventana_maquinas,
-                                    text='prueba',
-                                    command=lambda :[mosrtrar_lista(),ocultar()])
+        self.tractor = ctk.CTkButton(
+            self.ventana_maquinas,
+            text='tractor',
+            command=lambda: [mostrar_botones(), ocultar(), mostrar_tractores(self.list_tractores)]
+        )
         self.tractor.pack(pady=5)
-
-        #° lista de tractores
-
-        self.tractor_lista=ctk.CTkScrollableFrame(self.ventana_maquinas,)
-        self.tractor_lista.pack(pady=5)
-        self.tractor_lista.pack_forget()
-        self.tex_tractor=ctk.CTkLabel(self.tractor_lista,text='prueba',font=('Verdana',24))
-        self.tex_tractor.pack(pady=5)
 
         # ??Fumigador
         self.fumigador = ctk.CTkButton(self.ventana_maquinas,
-                                        text='prueba',
-                                        command=ocultar,
+                                        text='fumigador',
+                                        command=lambda :[mostrar_botones(),ocultar(),mostrar_fumigador(self.list_fumigadores)],
                                         width=200
                                         )
         self.fumigador.pack(pady=5)
 
-
         # ??Cosechador
-        self.cosechador = ctk.CTkButton(self.ventana_maquinas,
-                                        text='prueba',
-                                        command=ocultar)
+        self.cosechador = ctk.CTkButton(
+            self.ventana_maquinas,
+            text='cosechador',
+            command=lambda: [mostrar_botones(), ocultar(), mostrar_cosechador(self.list_cosechadoras)])
         self.cosechador.pack(pady=5)
 
 
         #?? Devolver
         self.devolver=ctk.CTkButton(self.ventana_maquinas,
                                     text='devolver',
+                                    command=devolver
                                     )
-        self.devolver.pack(pady=5)#° espaciado
+        self.devolver.pack_forget()
+    @staticmethod
+    def clasificar_tipo_maquina(lista_maquinas):
+        tractores = []
+        fumigadores = []
+        cosechadoras = []
+
+        for x in lista_maquinas:
+            if isinstance(x, Gestion.Tractor):
+                tractores.append(x)
+            elif isinstance(x, Gestion.Fumigador):
+                fumigadores.append(x)
+            elif isinstance(x, Gestion.Cosechador):
+                cosechadoras.append(x)
+            else:
+                print(f"Advertencia: Tipo de máquina no reconocido: {type(x)}")
+
+        return tractores, fumigadores, cosechadoras
+
+
 if __name__ == "__main__":
     Menu()
-
