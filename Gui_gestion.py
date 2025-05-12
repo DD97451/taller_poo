@@ -14,7 +14,10 @@ ctk.set_appearance_mode('dark')
 
 class Menu:
     def __init__(self):
-        # self.tipo_tractor=tipo_tractor
+
+        #contador de dias
+        self.dia = 0
+
         self.__ventana = ctk.CTk()
         self._text_preview = StringVar()
 
@@ -32,6 +35,15 @@ class Menu:
                                      size=(700, 350))
         titulo_ventana = ctk.CTkLabel(master=self.__ventana, image=titulo_imagen, text='', text_color=colores["crema"])
         titulo_ventana.place(relx=0.5, y=120, anchor=CENTER)
+        #?Contador de dias
+        self.label_dia = ctk.CTkLabel(
+            self.__ventana,
+            text=f"Día actual: {self.dia}",
+            font=("Arial", 16),
+            text_color=colores["crema"]
+        )
+        self.label_dia.place(relx=0.95, rely=0.05, anchor="ne")
+
         # ?Botones de elección
         scroll_menu = (ctk.CTkScrollableFrame(master=self.__ventana, width=600, height=600, ))
 
@@ -79,12 +91,16 @@ class Menu:
                                             )
         self.btn_reparacion.grid(row=3, column=0, padx=10, pady=10)
 
-        avanzar_dia = ctk.CTkButton(scroll_menu,
-                                    image=listado_maquina_imagen,
-                                    text='ppl',
-                                    command=self.pl, fg_color=colores["crema"], text_color=colores["aguamarina"],
-                                    hover_color=colores["aguamarina"]
-                                    ).grid(row=4, column=0, padx=10, pady=10)
+        self.btn_avanzar_dia = ctk.CTkButton(
+            scroll_menu,
+            image=listado_maquina_imagen,
+            text='Avanzar Día',
+            command=self.iniciar_nuevo_dia,
+            fg_color=colores["crema"],
+            text_color=colores["aguamarina"],
+            hover_color=colores["aguamarina"]
+        )
+        self.btn_avanzar_dia.grid(row=4, column=0, padx=10, pady=10)
 
         ver_tecnicos_btn = ctk.CTkButton(
             scroll_menu,
@@ -116,25 +132,25 @@ class Menu:
         # /* previsualización de programar mantenimiento
 
         opciones_mantenimiento = ctk.CTkFrame(master=scroll_menu,
-                                              width=300,
-                                              height=100,
-                                              fg_color=colores["verdeoscuro"])
+                                                width=300,
+                                                height=100,
+                                                fg_color=colores["verdeoscuro"])
         opciones_mantenimiento.grid(row=2, column=1, padx=10)
 
         boton_tractor_mantenimieto = ctk.CTkButton(opciones_mantenimiento,
-                                                   text='54515', fg_color=colores["crema"],
-                                                   text_color=colores["aguamarina"]).place(relx=1 / 3)
+                                                    text='54515', fg_color=colores["crema"],
+                                                    text_color=colores["aguamarina"]).place(relx=1 / 3)
         boton_fumigador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
-                                                      text='papapapa',
-                                                      width=50,
-                                                      height=50, fg_color=colores["crema"],
-                                                      text_color=colores["aguamarina"]).place(
+                                                        text='papapapa',
+                                                        width=50,
+                                                        height=50, fg_color=colores["crema"],
+                                                        text_color=colores["aguamarina"]).place(
             relx=2 / 3)
         boton_cosechador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
-                                                       text='adaswasd',
-                                                       width=50,
-                                                       height=50, fg_color=colores["crema"],
-                                                       text_color=colores["aguamarina"]).place(
+                                                        text='adaswasd',
+                                                        width=50,
+                                                        height=50, fg_color=colores["crema"],
+                                                        text_color=colores["aguamarina"]).place(
             relx=1 / 3, y=30)
 
         # /* previsualización de reparar
@@ -208,6 +224,48 @@ class Menu:
     def abrir_reparacion(self):
         VentanaMantenimiento(self.__ventana, tipo_accion="Reparación")
 
+    def iniciar_nuevo_dia(self):
+        # Crear ventana de animación
+        ventana_animacion = ctk.CTkToplevel(self.__ventana)
+        ventana_animacion.title("Avanzando al nuevo día")
+        ventana_animacion.geometry("400x400")
+        ventana_animacion.attributes('-topmost', True)
+
+        # Cargar GIF
+        try:
+            gif_path = os.path.join(carpeta_imagenes, 'Pasar dia x16.gif')
+            gif = Image.open(gif_path)
+            frames = []
+
+            # Extraer todos los frames del GIF
+            for frame in range(0, gif.n_frames):
+                gif.seek(frame)
+                frames.append(ctk.CTkImage(light_image=gif.copy(), size=(300, 300)))
+
+            label_animacion = ctk.CTkLabel(ventana_animacion, text="")
+            label_animacion.pack(pady=20)
+
+            # Mostrar animación
+            self.mostrar_animacion(frames, 0, label_animacion, ventana_animacion)
+
+        except Exception as e:
+
+            messagebox.showerror("Error", f"No se pudo cargar la animación: {str(e)}")
+            ventana_animacion.destroy()
+
+
+    def mostrar_animacion(self, frames, frame_actual, label, ventana):
+        if frame_actual < len(frames):
+            # Actualizar frame
+            label.configure(image=frames[frame_actual])
+            # Programar próximo frame después de 100ms
+            self.__ventana.after(500, lambda: self.mostrar_animacion(frames, frame_actual + 1, label, ventana))
+        else:
+            # Finalizar animación
+            ventana.destroy()
+            self.dia += 1
+            messagebox.showinfo("Nuevo día", f"¡Ahora es el día {self.dia}!")
+            self.label_dia.configure(text=f"Día actual: {self.dia}")            # Aquí puedes agregar lógica adicional para actualizar estados
 
     def pl(self):
         pass
