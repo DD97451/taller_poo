@@ -1,841 +1,786 @@
-import random
+import Gestion
+from tkinter import CENTER, StringVar, messagebox
+import customtkinter as ctk
 import os
-import time
-horas_trabajada=24
-maquinas_en_mantenimiento = []
-maquinas_en_reparacion = []
-
-
-def limpiar():
-    os.system("cls" if os.name == "nt" else "clear")
-
-
-def mover_tractor(lista_objetos):
-    # ---------------- TRACTOR NORMAL ----------------
-
-    def tractor_funcionando(pos):
-        espacio = " " * pos
-        return f"""{espacio}        ______
-    {espacio}   ____|__|__\\___
-    {espacio}  |    _   ___   `|
-    {espacio} /|___|_|_|___|___|
-    {espacio}( o )         ( o )  →→→ Arando..."""
-
-    def tractor_funcionando_reversa(pos):
-        espacio = " " * pos
-        return f"""{espacio}  ______        
-    {espacio}___/__/__|__|____   
-    {espacio}|`   ___   _    |  
-    {espacio}|___|___|_|_|_|\\|
-    {espacio}( o )         ( o )  ←←← Arando..."""
-
-    def tractor_estatico_exitoso():
-        return """        ______
-       ____|__|__\\___
-      |    _   ___   `|
-     /|___|_|_|___|___|
-    ( o )         ( o )  
-    Terminó de arar exitosamente ✅"""
-
-    def tractor_danado(frame):
-        humo_frames = [
-            ["     (  )", "    (    )", "   (      )"],
-            ["    (    )", "   (      )", "     (  )"],
-            ["   (      )", "     (  )", "    (    )"],
-        ]
-        humo = humo_frames[frame % len(humo_frames)]
-        return f"""{humo[0]}
-    {humo[1]}
-    {humo[2]}
-            ______
-      ____|__|__\\___        
-     |   _  x  ___  `|     
-    /|__|_|_|___|___|     
-    ( x )         (   )     ¡FALLÓ!"""
-
-    # ---------------- TRACTOR PODADORA ----------------
-
-    def tractor_podadora_funcionando(pos):
-        espacio = " " * pos
-        return f"""{espacio}        ______
-    {espacio}   ____|__|__\\___
-    {espacio}  |    _   ___   `|_________
-    {espacio} /|___|_|_|___|___|#######|
-    {espacio}( o )         ( o )   →→→ cortando..."""
-
-    def tractor_podadora_funcionando_reversa(pos):
-        espacio = " " * pos
-        return f"""{espacio}              ______
-    {espacio}          ___//__|__|___
-    {espacio} _________|`  ___   _    |
-    {espacio} |#######|___|___|_|_|___\\|
-    {espacio}         ( o )         ( o )   ←←←  cortando..."""
-
-    def tractor_podadora_estatico_exitoso():
-        return """        ______
-       ____|__|__\\___
-      |    _   ___   `|_________
-     /|___|_|_|___|___|#######|
-    ( o )         ( o )  
-    Terminó el corte exitosamente ✅"""
-
-    def tractor_podadora_danado(frame):
-        humo = tractor_danado(frame).split("\n")[:3]
-        return f"""{humo[0]}
-    {humo[1]}
-    {humo[2]}
-            ______
-      ____|__|__\\___        
-     |   _  x  ___  `|_________
-    /|___|_|_|___|___|#######|
-    ( x )         (   )     ¡FALLÓ cortando!"""
-
-    # ---------------- TRACTOR FUMIGADOR ----------------
-
-    def tractor_fumigador_funcionando(pos):
-        espacio = " " * pos
-        return f"""{espacio}        ______
-    {espacio}   ____|__|__\\___
-    {espacio}  |    _   ___   `|─────╭
-    {espacio} /|___|_|_|___|___|     ╰═💨
-    {espacio}( o )         ( o )   →→→ fumigando..."""
-
-    def tractor_fumigador_funcionando_reversa(pos):
-        espacio = " " * pos
-        return f"""{espacio}              ______
-    {espacio}          ___//__|__|___
-    {espacio}     ╭───|`  ___   _    |
-    {espacio} 💨═╯   |___|___|_|_|___\\|
-    {espacio}         ( o )         ( o )   ←←←  fumigando..."""
-
-    def tractor_fumigador_estatico_exitoso():
-        return """        ______
-       ____|__|__\\___
-      |    _   ___   `|─────╭
-     /|___|_|_|___|___|     ╰═💨
-    ( o )         ( o )  
-    Terminó de fumigar exitosamente ✅"""
-
-    def tractor_fumigador_danado(frame):
-        humo = tractor_danado(frame).split("\n")[:3]
-        return f"""{humo[0]}
-    {humo[1]}
-    {humo[2]}
-            ______
-      ____|__|__\\___        
-     |   _  x  ___  `|─────╭
-    /|___|_|_|___|___|     ╰═💨
-    ( x )         (   )     ¡FALLÓ fumigando!"""
-
-    # ---------------- MOVIMIENTO ----------------
-    def eleccion():
-        acciones = None
-        acciones2 = None
-        acciones3 = None
-        for l in lista_objetos:
-            if isinstance(l, Tractor):
-                objeto_1 = l
-                funcionando_1 = tractor_funcionando
-                reversa_1 = tractor_funcionando_reversa
-                exito_1 = tractor_estatico_exitoso
-                fallo_1 = tractor_danado
-                acciones = [objeto_1, funcionando_1, reversa_1, exito_1, fallo_1]
-            elif isinstance(l, Fumigador):
-                objeto_2 = l
-                funcionando_2 = tractor_fumigador_funcionando
-                reversa_2 = tractor_fumigador_funcionando_reversa
-                exito_2 = tractor_fumigador_estatico_exitoso
-                fallo_2 = tractor_fumigador_danado
-                acciones2 = [objeto_2, funcionando_2, reversa_2, exito_2, fallo_2]
-            elif isinstance(l, Cosechador):
-                objeto_3 = l
-                funcionando_3 = tractor_podadora_funcionando
-                reversa_3 = tractor_podadora_funcionando_reversa
-                exito_3 = tractor_podadora_estatico_exitoso
-                fallo_3 = tractor_podadora_danado
-                acciones3 = [objeto_3, funcionando_3, reversa_3, exito_3, fallo_3]
-
-        return acciones, acciones2, acciones3
-
-    (accion, accion2, accion3) = eleccion()
-    if not accion is None:  # revisanado si mandaron el objeto 1
-        objeto1 = accion[0]
-        funcionando1 = accion[1]
-        reversa1 = accion[2]
-        exito1 = accion[3]
-        fallo1 = accion[4]
-    else:
-        objeto1 = None
-        funcionando1 = None
-        reversa1 = None
-        exito1 = None
-        fallo1 = None
-    if not accion2 is None:  # revisanado si mandaron el objeto 2
-        objeto2 = accion2[0]
-        funcionando2 = accion2[1]
-        reversa2 = accion2[2]
-        exito2 = accion2[3]
-        fallo2 = accion2[4]
-    else:
-        objeto2 = None
-        funcionando2 = None
-        reversa2 = None
-        exito2 = None
-        fallo2 = None
-    if not accion3 is None:  # revisanado si mandaron el objeto 3
-        objeto3 = accion3[0]
-        funcionando3 = accion3[1]
-        reversa3 = accion3[2]
-        exito3 = accion3[3]
-        fallo3 = accion3[4]
-    else:
-        objeto3 = None
-        funcionando3 = None
-        reversa3 = None
-        exito3 = None
-        fallo3 = None
-
-    for i in range(0, 40, 2):
-        limpiar()
-        if not funcionando1 is None:
-            print(funcionando1(i))
-        if not funcionando2 is None:
-            print(funcionando2(i))
-        if not funcionando3 is None:
-            print(funcionando3(i))
-        time.sleep(0.1)
-    time.sleep(0.5)
-    for i in range(40, -1, -2):
-        limpiar()
-        if not reversa1 is None:
-            print(reversa1(i))
-        if not reversa2 is None:
-            print(reversa2(i))
-        if not reversa3 is None:
-            print(reversa3(i))
-        time.sleep(0.1)
-    time.sleep(0.5)
-    limpiar()
-    if not objeto1 is None:
-        objeto1.trabajar()
-    if not objeto2 is None:
-        objeto2.trabajar()
-    if not objeto3 is None:
-        objeto3.trabajar()
-    if all(obj is None for obj in [objeto1, objeto2, objeto3]):
-        for i in range(6):
-            limpiar()
-            print("No hay máquinas trabajando.")
-            time.sleep(0.5)
-    else:
-
-        for i in range(6):
-            limpiar()
-            if not objeto1 is None:
-                if objeto1.mantenimiento == 0:
-                    print(fallo1(i))
-                else:
-                    print(exito1())
-            if not objeto2 is None:
-                if objeto2.mantenimiento == 0:
-                    print(fallo2(i))
-                else:
-                    print(exito2())
-            if not objeto3 is None:
-                if objeto3.mantenimiento == 0:
-                    print(fallo3(i))
-                else:
-                    print(exito3())
-            time.sleep(0.5)
-
-
-def azar(multiplicador):
-    eleccion = random.randrange(0, 2)
-    if eleccion == 1:
-        return True
-    else:
-        return False
-
-
-def seleccionar_tecnico(tipo):
-    lista_disponibles = []
-    for i in lista_tecnicos:
-        if i.maquinaria == tipo and not i.get_laborando():  # Busca técnicos LIBRES
-            lista_disponibles.append(i)
-            print("Seleccione un técnico:")
-            for j in enumerate(lista_disponibles):
-                print(f"{j[0] + 1}. {j[1].get_nombre()} (ID: {j[1].get_identificacion()})")
-    if lista_disponibles:
-        while True:
-            try:
-                seleccion = int(input("Seleccione el número del técnico: ")) - 1
-                if seleccion < 0 or seleccion >= len(lista_disponibles):
-                    raise ValueError("Selección no válida.")
-                return lista_disponibles[seleccion]
-            except ValueError:
-                print("Selección no válida. Intente de nuevo.")
-                continue
-    else:        
-        print(f"No hay técnicos disponibles para el tipo {tipo}")
-        return None
-
-
-def nuevo_dia(maquinas_trabajar=None):
-    global dia
-    dia += 1
-    print(f"\n--- DÍA {dia} ---")
-
-    # Restar 1 hora de mantenimiento por dia trabajado a las máquinas activas
-    if maquinas_trabajar:
-        mover_tractor(maquinas_trabajar)
-        for maquina in maquinas_trabajar:
-            if maquina.mantenimiento > 0:
-                maquina.mantenimiento -= horas_trabajada
-                if maquina.mantenimiento >0:
-                    print(
-                        f"{maquina.__class__.__name__} #{maquina.get_serial()} trabajó{horas_trabajada}. Horas restantes: {maquina.mantenimiento}")
-                else:
-                    print(
-                        f"¡Atención! {maquina.__class__.__name__} #{maquina.get_serial()} necesita mantenimiento urgente.")
-
-            else:
-                print(
-                    f"¡Atención! {maquina.__class__.__name__} #{maquina.get_serial()} necesita mantenimiento urgente.")
-    # Procesar mantenimientos
-    for i in maquinas_en_mantenimiento.copy():
-        if i.maquina.mantenimiento > 0:
-            i.maquina.mantenimiento -= 1
-            if i.maquina.mantenimiento == 0:
-                print(f"El {i.maquina.__class__.__name__} {i.maquina.get_serial()} ha completado su mantenimiento.")
-                i.tecnico.cambiar_estado()  # Liberar técnico
-                maquinas_en_mantenimiento.remove(i)
-    for j in maquinas_en_reparacion:
-        if j.maquina.mantenimiento > 0:
-            j.maquina.mantenimiento -= 1
-        if j.maquina.mantenimiento == 0:
-            print(f"El {j.maquina.__class__.__name__} {j.maquina.get_serial()} ha sido reparado.")
-            j.tecnico.cambiar_estado()
-            maquinas_en_reparacion.remove(j)
-
-
-
-def eliminar_memoria():
-    try:
-        # Eliminar archivos de texto en el directorio actual
-        current_directory = os.getcwd()
-        entries = os.listdir(current_directory)
-        for c in entries:
-            if c.split('.')[1] == 'txt':
-                os.remove(c)  # eliminamos todos los archivos de texto que son la memoria del programa
-    except:
-        print("GRACIAS POR USAR EL PROGRAMA")
-
-
-def tractor_reparacion(frame, accion):
-    tuerca = tuerca_lateral_animada(frame)
-    return f"""{tuerca}
-
-                   ______
-             ____|__|__\\___
-            |   _   ___   `|
-           /|__|_|_|___|___|
-           ( o )         ( o )
-
-                🔧 EN {accion} 🔧"""
-
-
-def tractor_podadora_reparacion(frame, accion):
-    base = tractor_reparacion(frame, accion)
-    return base.replace(f"EN {accion}", f"EN {accion} (podadora)")
-
-
-def tractor_fumigador_reparacion(frame, accion):
-    base = tractor_reparacion(frame, accion)
-    return base.replace(f"EN {accion}", f"EN {accion} (fumigador)")
-
-
-def tuerca_lateral_animada(frame):
-    tuerca_frames = [
-        "    _____\n   /       \\\n  |   o o   |\n   \\_______/",
-        "    _____\n   /   o   \\\n  |    o    |\n   \\_______/",
-        "    _____\n   /    o  \\\n  |   o     |\n   \\_______/",
-        "    _____\n   /   o   \\\n  |     o   |\n   \\_______/",
-    ]
-    return tuerca_frames[frame % len(tuerca_frames)]
-
-contrasena = "1234"
-
-def menu(maquinas):
-    maquinas_trabajando = []
-
-    while True:
-        input
-        time.sleep(1)
-        limpiar()
-        time.sleep(0.5)
-
-        print("\n" + "-" * 40)
-        print(f"Sistema de Gestión de Maquinaria\n DÍA {dia}")
-        print("-" * 40)
-        print("\n--- MENÚ PRINCIPAL ---")
-        print("1. Ver listado de máquinas")
-        print("2. Enviar máquinas a trabajar")
-        print("3. Programar mantenimiento preventivo")
-        print("4. Reparar máquina averiada")
-        print("5. Avanzar al siguiente dia")
-        print("6. Ver historial de una máquina")
-        print("7. Agregar Máquina")
-        print("8. Agregar Técnico")
-        print("9. Ver técnicos")
-        print("10. Salir del sistema")
-        print("-" * 40)
-
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == "1":
-            print("\n--- LISTADO DE MÁQUINAS ---")
-            for i, maquina in enumerate(maquinas):
-                # Verificar si está en mantenimiento (por serial)
-                en_mantenimiento = any(
-                    m.maquina.get_serial() == maquina.get_serial()
-                    for m in maquinas_en_mantenimiento
-                )
-                # Verificar si está en reparación (por serial)
-                en_reparacion = any(
-                    m.maquina.get_serial() == maquina.get_serial()
-                    for m in maquinas_en_reparacion
-                )
-                estado = "🔧 Mantenimiento" if en_mantenimiento else "⚠️ Reparación" if en_reparacion else "✅ Disponible"
-                print(f"{i + 1}. {maquina.__class__.__name__} #{maquina.get_serial()} - Estado: {estado}")
-            input("Presione Enter para continuar...")
-
-        elif opcion == "2":
-            print("\n--- ENVIAR MÁQUINAS A TRABAJAR ---")
-            for i, maquina in enumerate(maquinas):
-                print(f"{i + 1}. {maquina.get_serial()}")
-            indices = input("Ingrese los números de las máquinas a trabajar separados por coma: ")
-            maquinas_trabajando = []
-            for i in indices.split(","):
-                idx = int(i) - 1
-                # Verificar si está en mantenimiento (por serial)
-                en_mantenimiento = any(
-                    m.maquina.get_serial() == maquinas[idx].get_serial()
-                    for m in maquinas_en_mantenimiento
-                )
-                # Verificar si está en reparación (por serial)
-                en_reparacion = any(
-                    m.maquina.get_serial() == maquinas[idx].get_serial()
-                    for m in maquinas_en_reparacion
-                )
-                if 0 <= idx < len(maquinas):
-                    if en_mantenimiento:
-                        print(f"⚠️ La máquina {maquinas[idx].get_serial()} está en mantenimiento.")
-                    elif en_reparacion:
-                        print(f"⚠️ La máquina {maquinas[idx].get_serial()} está en reparación.")
-                    else:
-                        maquinas_trabajando.append(maquinas[idx])
-                        print(f"{maquinas[idx].get_serial()} enviada a trabajar.")
-
-        elif opcion == "3":
-            print("\n--- PROGRAMAR MANTENIMIENTO PREVENTIVO ---")
-            for i, maquina in enumerate(maquinas):
-                print(f"{i + 1}. {maquina.get_serial()}")
-            while True:
-                try: 
-                    idx = int(input("Seleccione el número de la máquina: ")) - 1
-                    if 0 <= idx < len(maquinas):
-                        Mantenimiento.iniciar_mantenimiento(maquinas[idx])
-                        print(f"{maquinas[idx].get_serial()} está en mantenimiento prentivo.")
-                        break
-                except ValueError:
-                    print("Opción no válida. Intente de nuevo.")
-                    continue
-
-        elif opcion == "4":
-            print("\n--- REPARAR MÁQUINA AVERIADA ---")
-            for i, maquina in enumerate(maquinas):
-                print(f"{i + 1}. {maquina.get_serial()}")
-            idx = int(input("Seleccione el número de la máquina: ")) - 1
-            if 0 <= idx < len(maquinas):
-                Mantenimiento.reparar(maquinas[idx])
-
-        elif opcion == "5":
-            print("\n--- AVANZAR AL SIGUIENTE DÍA ---")
-            nuevo_dia(maquinas_trabajando)
-            print("Nuevo dia procesado.")
-            maquinas_trabajando = []
-
-        elif opcion == "6":
-            print("\n--- HISTORIAL DE UNA MÁQUINA ---")
-            for i, maquina in enumerate(maquinas):
-                print(f"{i + 1}. {maquina.get_serial()}")
-            idx = int(input("Seleccione el número de la máquina: ")) - 1
-            if 0 <= idx < len(maquinas):
-                maquinas[idx].mostrar_historial()
-            input("Presione Enter para continuar...")
-        elif opcion == "7":
-            print("\n--- AGREGAR MÁQUINA ---")
-            agregar_maquina()
-            print("Máquina agregada exitosamente.")
-        elif opcion == "8":
-            print("\n--- AGREGAR TÉCNICO ---")
-            agregar_tecnico()
-            print("Técnico agregado exitosamente.") 
-        elif opcion == "9":
-            print("\n--- VER TÉCNICOS ---")
-            ver_tecnicos()   
-        elif opcion == "10":
-            verificar = input("¿Está seguro de que desea salir? (s/n): ")
-            if verificar.lower() == "s":
-                password = input("Ingrese la contraseña para salir: ")
-                if password == contrasena:
-                    print("Contraseña correcta. Saliendo del sistema...")
-                    eliminar_memoria()
-                    break
-                else:
-                    print("Contraseña incorrecta. No se puede salir del sistema.")
-                    continue
-            elif verificar.lower() == "n":
-                print("Regresando al menú principal...")
-                continue    
-            else:
-                print("Opción no válida. Regresando al menú principal...")
-                continue
-        else:
-            print("Opción no válida. Intente de nuevo.")
-
-
-def agregar_maquina():
-    while True:
-        try:
-            eleccion = input(f"¿Qué tipo de máquina desea agregar?\n1. Cosechador\n2. Fumigador\n3. Tractor: \n")
-        except ValueError:
-            print("Opción no válida. Intente de nuevo.")
-            continue
-        while True:
-            try:
-                serial = input("Ingrese el número de serie de la máquina: ")
-                if not serial:
-                    raise ValueError("El número de serie no puede estar vacío.")
-                for i in todas_las_maquinas:
-                    if i.get_serial() == serial:
-                        raise ValueError("El número de serie ya existe.")
-
-                break
-            except ValueError as e:
-                print("Error: debe ingresar un número de serie válido.")
-                continue
-        while True:
-            try:
-                horas_mantenimiento = int(input("Ingrese las horas de mantenimiento: "))
-                if horas_mantenimiento <= 0:
-                    raise ValueError("Las horas de mantenimiento deben ser un número positivo.")
-                break
-            except ValueError as e:
-                print("Error: debe ingresar un número positivo.")
-                continue
-
-        if eleccion == "1":
-            nueva_maquina = Cosechador(serial, 100, horas_mantenimiento)
-
-        elif eleccion == "2":
-            nueva_maquina = Fumigador(serial, 100, horas_mantenimiento)
-
-        elif eleccion == "3":
-            nueva_maquina = Tractor(serial, 100, horas_mantenimiento)
-
-        else:
-            print("Opción no válida. Intente de nuevo.")
-            continue
-        # Agregar la nueva máquina a la lista de máquinas
-        todas_las_maquinas.append(nueva_maquina)
-        break
-
-
-def agregar_tecnico():
-    while True:
-        try:
-            nombre = input("Ingrese el nombre del técnico: ")
-            if not nombre:
-                print("El nombre no puede estar vacío.")
-                continue
-            else:
-                break
-        except ValueError:
-            print("el nombre no puede estar vacío.")
-            continue
-
-    while True:
-        try:
-            identificacion = int(input("Ingrese la identificación del técnico: "))
-            if identificacion <= 0:
-                print("La identificación debe ser un número positivo.")
-                continue
-            for i in lista_tecnicos:
-                if i.get_identificacion() == identificacion:
-                    raise ValueError("La identificación ya existe.")
-            break
-                
-        except ValueError:
-            print("Error: La identificación debe ser un número positivo.")
-            continue
-
-    while True:
-        try:
-            maquinaria = int(input("Ingrese el tipo de maquinaria que repara \n1. Cosechador'\n2. Fumigador\n3. Tractor: "))
-            if maquinaria not in [1, 2, 3]:
-                raise ValueError("Tipo de maquinaria no válido.")
-            else :
-                if maquinaria == 1:
-                    maquinaria = "Cosechador"
-                elif maquinaria == 2:
-                    maquinaria = "Fumigador"
-                elif maquinaria == 3:
-                    maquinaria = "Tractor"
-            break
-        except ValueError:
-            print("Error: debe ingresar un número entre 1 y 3.")
-            continue
-
-    nuevo_tecnico = Serviciotecnico(nombre, identificacion, maquinaria)
-    lista_tecnicos.append(nuevo_tecnico)
-
-
-def ver_tecnicos():
-    print("\n--- LISTADO DE TÉCNICOS ---")
-    for i, tecnico in enumerate(lista_tecnicos):
-        estado = "Libre" if not tecnico.get_laborando() else "Ocupado"
-        print(f"{i + 1}. {tecnico.get_nombre()} (ID: {tecnico.get_identificacion()}) - Estado: {estado}")
-    input("Presione Enter para continuar...")
-
-
-
-class Maquinaria:
-    def __init__(self, num_serial, tank_fuel, mantenimiento,
-                 en_uso=True):  # la hora de mantenimiento es el tiempo de uso antes de un mantenimiento
-        self._num_serial = num_serial
-        self._tank_fuel = tank_fuel
-        self.mantenimiento = mantenimiento  # las horas de cada cuanto se hace el mantenimiento
-        self._mantenimiento_privado = mantenimiento  # las horas de referencia
-        self.en_uso = en_uso
-
-    def get_info(self):
-        print(self._tank_fuel, self.mantenimiento, self.en_uso)
-
-    def get_serial(self):
-        return self._num_serial
-
-    def get_mantenimiento(self):
-        return self._mantenimiento_privado
-
-    def get_mantenimiento_privado(self):
-        return self._mantenimiento_privado
-
-    def activar_desactivar(self):
-        self.en_uso = not self.en_uso
-
-    def subir_historial(self, accion, tecnico_nombre, dia):
-        hoy = time.localtime()
-        hoy = time.strftime("%Y-%m-%d", hoy)
-        nombre_archivo = f"historial_{self._num_serial}.txt"
-        linea = f"📅 {hoy}| Día {dia} ||\n🔄 Actividad: {accion} |\n👨‍🔧 Técnico: {tecnico_nombre}||\n"
-        titulo =f"╔════════════════════════════════════════════════════════╗\n║              🛠️ MANTENIMIENTOS REGISTRADOS -  {self._num_serial}  🚜    ║\n╚════════════════════════════════════════════════════════╝\n"
-
-
-        try:
-        # Verificar si el archivo ya existe
-            archivo_nuevo = not os.path.exists(nombre_archivo)
-
-            with open(nombre_archivo, "a", encoding="utf-8") as archivo:
-                if archivo_nuevo:
-                    archivo.write(titulo)
-                archivo.write(linea)
-        except Exception as e:
-            print(f"Error al guardar el historial: {e}")
-
-    def mostrar_historial(self):
-        nombre_archivo = f"historial_{self._num_serial}.txt"
-        try:
-            with open(nombre_archivo, "r", encoding="utf-8") as archivo:
-                print(f"\nHistorial de la máquina {self._num_serial}:")
-                print(archivo.read())
-        except FileNotFoundError:
-            print("No hay historial registrado.")
-
-
-class Tractor(Maquinaria):
-    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
-
-    def trabajar(self):
-        tiempo_restante = self.mantenimiento
-        result = azar(self.mantenimiento)
-        if not result:
-            tiempo_restado = random.randrange(0, tiempo_restante + 1)
-            self.mantenimiento = self.mantenimiento - tiempo_restado
-        return result
-
-
-class Fumigador(Maquinaria):
-    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
-
-    def trabajar(self):
-        tiempo_restante = self.mantenimiento
-        result = azar(self.mantenimiento)
-        if not result:
-            tiempo_restado = random.randrange(0, tiempo_restante + 1)
-            self.mantenimiento = self.mantenimiento - tiempo_restado
-        return result
-
-
-class Cosechador(Maquinaria):
-    def __init__(self, num_serial, tank_fuel, mantenimiento, en_uso=True):
-        super().__init__(num_serial, tank_fuel, mantenimiento, en_uso)
-
-    def trabajar(self):
-        tiempo_restante = self.mantenimiento
-        result = azar(self.mantenimiento)
-        if not result:
-            tiempo_restado = random.randrange(0, tiempo_restante + 1)
-            self.mantenimiento = self.mantenimiento - tiempo_restado
-        return result
-
-
-class Serviciotecnico:
-    def __init__(self, nombre, identificacion, maquinaria, laborando=False):
-        self._nombre = nombre
-        self._identificacion = identificacion
-        self.maquinaria = maquinaria
-        self._laborando = laborando  # False: Libre, True: Ocupado
-
-    def get_laborando(self):
-        return self._laborando
-
-    def get_nombre(self):
-        return self._nombre
-
-    def get_identificacion(self):
-        return self._identificacion
-
-    def cambiar_estado(self):
-        self._laborando = not self._laborando  # Alterna entre libre/ocupado
-
-
-class Mantenimiento:
-    def __init__(self, maquina, tecnico, dia):
-        self.maquina = maquina
-        self.tecnico = tecnico
-        self.dia = dia
+from PIL import Image, ImageTk
+
+colores = {"aguamarina": "#1B3337", "marron": "#593B29", "verdeclro": "#899D18", "verdeoscuro": "#4C5F0C",
+           "crema": "#EBCF88"}
+# ? Direcciones de las imagenes
+carpeta_master = os.path.dirname(__file__)
+carpeta_imagenes = os.path.join(carpeta_master, 'Imgen_interfaz')
+ctk.set_appearance_mode('dark')
+
+
+class Menu:
+    def __init__(self):
+        # self.tipo_tractor=tipo_tractor
+        self.__ventana = ctk.CTk()
+        self._text_preview = StringVar()
+
+        # Color de la ventana
+        self.__ventana.configure(fg_color=colores["aguamarina"])
+        # configuracíon de ventana principal
+        self.__ventana.title('Sistema de Gestión de Maquinaria')
+        self.__ventana.geometry('1350x900')  # Tamaño de la ventana
+
+        # self.__ventana.iconbitmap(os.path.join('Imgen_interfaz', 'icono.ico'))
+        # configuracion de previe
+
+        # ? Titulo del menu
+        titulo_imagen = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'TITULO x3.png')),
+                                     size=(700, 350))
+        titulo_ventana = ctk.CTkLabel(master=self.__ventana, image=titulo_imagen, text='', text_color=colores["crema"])
+        titulo_ventana.place(relx=0.5, y=100, anchor=CENTER)
+        # ?Botones de elección
+        scroll_menu = (ctk.CTkScrollableFrame(master=self.__ventana, width=600, height=600, ))
+
+        scroll_menu.place(relx=0.5, rely=2.34 / 4, anchor=CENTER)
+        scroll_menu.configure(fg_color=colores["marron"])
+        # ??COLUMNA 1
+        listado_maquina_imagen = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+                                              # ° imagen del titutlo de lista de maquinas
+                                              size=(100, 100))
+
+        lista_maquina = ctk.CTkButton(scroll_menu,
+                                      image=listado_maquina_imagen,
+                                      text='1', command=self.mostrar_ventana_lista, fg_color=colores["crema"],
+                                      text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
+                                      ).grid(row=0, column=0, padx=10, pady=10)  # !trabajando aqui
+
+        titulo_ventana.pack()
+
+        programar_mantenimiento = ctk.CTkButton(scroll_menu,
+                                                image=listado_maquina_imagen,
+                                                text='5', command=self.pl, fg_color=colores["crema"],
+                                                text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
+                                                ).grid(row=2, column=0, padx=10, pady=10)
+
+        reparar_maquinas = ctk.CTkButton(scroll_menu,
+                                         image=listado_maquina_imagen,
+                                         text='4', command=self.pl, fg_color=colores["crema"],
+                                         text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
+                                         ).grid(row=3, column=0, padx=10, pady=10)
+
+        self.btn_mantenimiento = ctk.CTkButton(
+            scroll_menu,
+            image=listado_maquina_imagen,
+            text='5',
+            command=self.abrir_mantenimiento,
+            fg_color=colores["crema"],
+            text_color=colores["aguamarina"]
+        )
+        self.btn_mantenimiento.grid(row=2, column=0, padx=10, pady=10)
+
+        self.btn_reparacion = ctk.CTkButton(scroll_menu,
+                                            image=listado_maquina_imagen,
+                                            text='4', fg_color=colores["crema"],
+                                            text_color=colores["aguamarina"],
+                                            command=self.abrir_reparacion
+                                            )
+        self.btn_reparacion.grid(row=3, column=0, padx=10, pady=10)
+
+        avanzar_dia = ctk.CTkButton(scroll_menu,
+                                    image=listado_maquina_imagen,
+                                    text='ppl',
+                                    command=self.pl, fg_color=colores["crema"], text_color=colores["aguamarina"],
+                                    hover_color=colores["aguamarina"]
+                                    ).grid(row=4, column=0, padx=10, pady=10)
+
+        ver_tecnicos_btn = ctk.CTkButton(
+            scroll_menu,
+            text="👨🔧 Ver Técnicos",
+            command=self.mostrar_ventana_tecnicos
+        )
+        ver_tecnicos_btn.grid(row=5, column=0, padx=10, pady=10)
+        ver_tecnicos_btn.configure(fg_color=colores["verdeclro"])
+
+        agregar_tecnico_btn = ctk.CTkButton(
+            scroll_menu,
+            text="➕ Agregar Técnico",
+            command=self.mostrar_ventana_agregar_tecnico
+        )
+        agregar_tecnico_btn.grid(row=6, column=0, padx=10, pady=10)
+        agregar_tecnico_btn.configure(fg_color=colores["verdeclro"])
+
+        # ?? COLUMNA 2
+
+        # /* previsualización del listado de maquinas
+
+        listado_maquina_preview = ctk.CTkScrollableFrame(master=scroll_menu,
+                                                         width=300,
+                                                         height=100,
+                                                         fg_color=colores["verdeoscuro"])
+        listado_maquina_preview.grid(row=0, column=1, padx=10)
+        texto_previw_maquinas = ctk.CTkLabel(listado_maquina_preview, textvariable=self._text_preview).pack()
+
+        # /* previsualización de programar mantenimiento
+
+        opciones_mantenimiento = ctk.CTkFrame(master=scroll_menu,
+                                              width=300,
+                                              height=100,
+                                              fg_color=colores["verdeoscuro"])
+        opciones_mantenimiento.grid(row=2, column=1, padx=10)
+
+        boton_tractor_mantenimieto = ctk.CTkButton(opciones_mantenimiento,
+                                                   text='54515', fg_color=colores["crema"],
+                                                   text_color=colores["aguamarina"]).place(relx=1 / 3)
+        boton_fumigador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
+                                                      text='papapapa',
+                                                      width=50,
+                                                      height=50, fg_color=colores["crema"],
+                                                      text_color=colores["aguamarina"]).place(
+            relx=2 / 3)
+        boton_cosechador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
+                                                       text='adaswasd',
+                                                       width=50,
+                                                       height=50, fg_color=colores["crema"],
+                                                       text_color=colores["aguamarina"]).place(
+            relx=1 / 3, y=30)
+
+        # /* previsualización de reparar
+
+        opciones_repar = ctk.CTkFrame(master=scroll_menu,
+                                      width=300,
+                                      height=100,
+                                      fg_color=colores["verdeoscuro"])
+
+        opciones_repar.grid(row=3, column=1, padx=10)
+
+        tractor_reparar = ctk.CTkButton(opciones_repar,
+                                        text='54515', fg_color=colores["crema"],
+                                        text_color=colores["aguamarina"]).place(relx=1 / 3)
+
+        fumigador_reparar = ctk.CTkButton(opciones_repar,
+                                          text='papapapa',
+                                          width=50,
+                                          height=50, fg_color=colores["crema"], text_color=colores["aguamarina"]).place(
+            relx=2 / 3)
+
+        cosechador_reparar = ctk.CTkButton(opciones_repar,
+                                           text='adaswasd',
+                                           width=50,
+                                           height=50, fg_color=colores["crema"],
+                                           text_color=colores["aguamarina"]).place(relx=1 / 3, y=30)
+
+        # /* previsualización de avanzar dia
+        apartado_avanzar_dia = ctk.CTkFrame(master=scroll_menu,
+                                            width=300,
+                                            height=100,
+                                            fg_color=colores["verdeoscuro"])
+
+        apartado_avanzar_dia.grid(row=4, column=1, padx=10)
+
+        boton_tractor_reparar = ctk.CTkLabel(apartado_avanzar_dia,
+                                             text='54515').place(relx=1 / 3)
+
+        agregar_maquina_btn = ctk.CTkButton(
+            scroll_menu,
+            text="➕ Agregar Máquina",
+            command=self.mostrar_ventana_agregar
+        )
+        agregar_maquina_btn.grid(row=6, column=1, padx=10, pady=10)
+        agregar_maquina_btn.configure(fg_color=colores["verdeclro"])
+
+        self.__ventana.mainloop()
+
+    def mostrar_ventana_agregar(self):
+        VentanaAgregarMaquina(self.__ventana)
+
+    def mostrar_ventana_lista(self):
+        VentanaLista()
+
+    def mostrar_ventana_agregar_tecnico(self):
+        VentanaAgregarTecnico(self.__ventana)
+
+    def mostrar_ventana_tecnicos(self):
+        VentanaTecnicos()
+
+    def actualizar_preview_maquinas(self):
+        pass
+
+    def update_text(self):
+        archivo = open('historial_C1.txt', 'r', encoding='utf-8')
+        self._text_preview.set(archivo.read())
+
+    def abrir_mantenimiento(self):
+        VentanaMantenimiento(self.__ventana, tipo_accion="Mantenimiento")
+
+    def abrir_reparacion(self):
+        VentanaMantenimiento(self.__ventana, tipo_accion="Reparación")
+
+
+    def pl(self):
+        pass
+
+
+class VentanaLista:
+    def __init__(self):
+        # super().__init__(tipo_tractor)
+        # ? Clasificar las máquinas
+        self.list_tractores, self.list_fumigadores, self.list_cosechadoras = self.clasificar_tipo_maquina(
+            Gestion.todas_las_maquinas)
+
+        # ?Configuracioón ventana(lista de maquinas registradas)
+        self.ventana_maquinas = ctk.CTkToplevel()
+        self.ventana_maquinas.geometry('300x500')  # ° Tamaño 2 vemtana
+        self.ventana_maquinas.attributes('-topmost', True)
+
+        # ?lista auxiliar
+
+        # ? Funciones de segunda ventana
+        def devolver():
+            self.tractor.pack(pady=10)
+            self.fumigador.pack(pady=10)
+            self.cosechador.pack(pady=10)
+            self.boton_enviar_trabajar.pack(pady=10)
+            self.scroll_listas.pack_forget()
+            self.devolver.pack_forget()
+            self.devolver.configure(fg_color=colores["aguamarina"])
+
+        def ocultar():  # Oculta botones principales
+            self.tractor.pack_forget()
+            self.fumigador.pack_forget()
+            self.cosechador.pack_forget()
+            self.boton_enviar_trabajar.pack_forget()
+
+        def mostrar_botones():
+            self.scroll_listas.pack(pady=5)
+            self.scroll_listas.configure(fg_color=colores["aguamarina"])
+            self.devolver.pack(pady=5)
+
+        def mostrar_tractores(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            # Crear nuevos elementos
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+        def mostrar_cosechador(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            # Crear nuevos elementos
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+        def mostrar_fumigador(lista_maquinas):
+            # Limpiar widgets anteriores
+            if hasattr(self, 'title_lisatado'):
+                self.title_lisatado.destroy()
+            if hasattr(self, 'labels_seriales'):
+                for label in self.labels_seriales:
+                    label.destroy()
+
+            self.title_lisatado = ctk.CTkLabel(self.scroll_listas, text='Tractores registrados', font=('verdana', 15))
+            self.title_lisatado.pack()
+            # creacion automatica del listado
+            self.labels_seriales = []
+            for n, tractor in enumerate(lista_maquinas, 1):
+                label = ctk.CTkLabel(self.scroll_listas, text=f'{n}) {tractor.get_serial()}')
+                label.pack()
+                self.labels_seriales.append(label)
+
+        # ? Botones segunda ventana
+        # ?? Deslizable de lista de tractores
+        self.scroll_listas = ctk.CTkScrollableFrame(self.ventana_maquinas, fg_color=colores["crema"], height=400)
+        self.scroll_listas.pack_forget()
+        imagen_tractor = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'Tractor x1.png')),
+                                      size=(150, 100))
+
+        # ?? Tractor
+        self.tractor = ctk.CTkButton(
+            self.ventana_maquinas,
+            text="Tractor",
+            font=('verdana', 20),
+            image=imagen_tractor,
+            text_color=colores["aguamarina"],
+            fg_color=colores["crema"],
+            hover_color=colores["marron"],
+            command=lambda: [mostrar_botones(), ocultar(), mostrar_tractores(self.list_tractores)]
+        )
+        self.tractor.pack(pady=5)
+
+        imagen_fumigador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor fumigador x1.png')),
+            size=(150, 100))
+        # ??Fumigador
+        self.fumigador = ctk.CTkButton(self.ventana_maquinas,
+                                       text='Fumigador',
+                                       font=('verdana', 20),
+                                       image=imagen_fumigador,
+                                       text_color=colores["aguamarina"],
+                                       fg_color=colores["crema"],
+                                       hover_color=colores["marron"],
+                                       command=lambda: [mostrar_botones(), ocultar(),
+                                                        mostrar_fumigador(self.list_fumigadores)],
+                                       width=200
+                                       )
+        self.fumigador.pack(pady=5)
+
+        impagen_cosechador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor recolector x1.png')),
+            size=(150, 100))
+        # ??Cosechador
+        self.cosechador = ctk.CTkButton(
+            self.ventana_maquinas,
+            text='Cosechador',
+            font=('verdana', 20),
+            image=impagen_cosechador,
+            text_color=colores["aguamarina"],
+            fg_color=colores["crema"],
+            hover_color=colores["marron"],
+            command=lambda: [mostrar_botones(), ocultar(), mostrar_cosechador(self.list_cosechadoras)])
+        self.cosechador.pack(pady=5)
+
+        # ?? Enviar maquina a trabjar
+
+        self.boton_enviar_trabajar = ctk.CTkButton(
+            self.ventana_maquinas,
+            text="Enviar a Trabajar",
+            command=self.abrir_seleccion_maquinas
+        )
+        self.boton_enviar_trabajar.pack(pady=10)
+
+        # ?? Devolver
+        self.devolver = ctk.CTkButton(self.ventana_maquinas,
+                                      text='devolver',
+                                      command=devolver
+                                      )
+        self.devolver.pack_forget()
 
     @staticmethod
-    def iniciar_mantenimiento(maquina_seleccionada):
-        accion = "Mantenimiento preventivo"
-        if isinstance(maquina_seleccionada, (Cosechador, Fumigador, Tractor)):
-            tipo = maquina_seleccionada.__class__.__name__
+    def clasificar_tipo_maquina(lista_maquinas):
+        tractores = []
+        fumigadores = []
+        cosechadoras = []
 
-        if maquina_seleccionada.mantenimiento == 0:
-            print(
-                f"El tiempo de mantenimiento óptimo para el {tipo} {maquina_seleccionada.get_serial()} ha caducado. Intente hacer reparación.")
+        for x in lista_maquinas:
+            if isinstance(x, Gestion.Tractor):
+                tractores.append(x)
+            elif isinstance(x, Gestion.Fumigador):
+                fumigadores.append(x)
+            elif isinstance(x, Gestion.Cosechador):
+                cosechadoras.append(x)
+            else:
+                print(f"Advertencia: Tipo de máquina no reconocido: {type(x)}")
+
+        return tractores, fumigadores, cosechadoras
+
+    def abrir_seleccion_maquinas(self):
+        VentanaSeleccionMaquinas(self.ventana_maquinas)
+
+
+class VentanaAgregarMaquina(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.acortadores = ["Tractor", "Fumigador", "Cosechador"]
+
+        self.attributes('-topmost', True)
+
+        # ? configuración ventana
+        self.title("Agregar Nueva Máquina")
+        self.geometry("400x300")
+        self.configure(fg_color=colores["aguamarina"])
+        # Configuración de widgets
+        self.tipo_var = ctk.StringVar(value="Tractor")
+        self.serial_var = ctk.StringVar()
+        self.horas_var = ctk.StringVar()
+
+        # Tipo de máquina
+        ctk.CTkLabel(self, text="Tipo de Máquina:").pack(pady=5)
+        tipo_options = ctk.CTkComboBox(self, variable=self.tipo_var,
+                                       values=self.acortadores)
+        tipo_options.pack(pady=5)
+
+        # Número de serie
+        ctk.CTkLabel(self, text="Número de Serie:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.serial_var).pack(pady=5)
+
+        # Horas de mantenimiento
+        ctk.CTkLabel(self, text="Horas de Mantenimiento:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.horas_var).pack(pady=5)
+
+        # Botón de enviar
+        ctk.CTkButton(self, text="Registrar Máquina", fg_color=colores["verdeclro"], command=self.validar_maquina).pack(
+            pady=15)
+
+    def validar_maquina(self):
+        tipo = self.tipo_var.get()
+        serial = self.serial_var.get().strip()
+        horas = self.horas_var.get().strip()
+
+        # Validación de datos
+        if not serial:
+            messagebox.showerror("Error", "El número de serie es obligatorio")
             return
 
-        tecnico = seleccionar_tecnico(tipo)
-        if tecnico is not None:
-            tecnico.cambiar_estado()
-            if tipo == "Cosechador":
-
-                for i in range(6):
-                    limpiar()
-                    print(tractor_podadora_reparacion(i, accion))
-                    time.sleep(0.5)
-            elif tipo == "Fumigador":
-                for i in range(6):
-                    limpiar()
-                    print(tractor_fumigador_reparacion(i, accion))
-                    time.sleep(0.5)
-            elif tipo == "Tractor":
-                for i in range(6):
-                    limpiar()
-                    print(tractor_reparacion(i, accion))
-                    time.sleep(0.5)
-            else:
-                print("hay un error")
-                return
-            maquina_seleccionada.mantenimiento = maquina_seleccionada.get_mantenimiento_privado()
-            maquina_agregar = Mantenimiento(maquina_seleccionada, tecnico, dia)
-            maquinas_en_mantenimiento.append(maquina_agregar)
-            maquina_seleccionada.subir_historial("Mantenimiento preventivo", tecnico.get_nombre(),dia)  # <-- Añade esto
-
-            print(
-                f"El técnico {tecnico._nombre} realizará el mantenimiento del {tipo} {maquina_seleccionada.get_serial()}. Estará disponible mañana.")
-        else:
-            print(f"⚠️ No hay técnicos disponibles para el {tipo} {maquina_seleccionada.get_serial()}.")
-
-    @staticmethod
-    def reparar(maquina_seleccionada):
-        accion = "Reparación"
-        if isinstance(maquina_seleccionada, (Cosechador, Fumigador, Tractor)):
-            tipo = maquina_seleccionada.__class__.__name__
-        if maquina_seleccionada.mantenimiento > 0:
-            print(f"El {tipo} {maquina_seleccionada.get_serial()} no necesita reparación.")
+        if not horas.isdigit() or int(horas) <= 0:
+            messagebox.showerror("Error", "Horas de mantenimiento inválidas")
             return
-        for i in maquinas_en_reparacion:
-            if i.maquina.get_serial() == maquina_seleccionada.get_serial():
-                print(f"El {tipo} {maquina_seleccionada.get_serial()} ya está en reparación.")
-                return
 
-        tecnico = seleccionar_tecnico(tipo)
-        if tecnico:
-            tecnico.cambiar_estado()
-            if tipo == "Cosechador":
+        # Verificar serial único
+        if any(m.get_serial() == serial for m in Gestion.todas_las_maquinas):
+            messagebox.showerror("Error", "¡El número de serie ya existe!")
+            return
 
-                for i in range(6):
-                    limpiar()
-                    print(tractor_podadora_reparacion(i, accion))
-                    time.sleep(0.5)
-            elif tipo == "Fumigador":
-                for i in range(6):
-                    limpiar()
-                    print(tractor_fumigador_reparacion(i, accion))
-                    time.sleep(0.5)
-            elif tipo == "Tractor":
-                for i in range(6):
-                    limpiar()
-                    print(tractor_reparacion(i, accion))
-                    time.sleep(0.5)
-            else:
-                print("hay un error")
-                return
-            print(
-                f"🔧 El técnico {tecnico.get_nombre()} comenzó la reparación del {tipo} {maquina_seleccionada.get_serial()}. estará disponible en dos díasj")
-            maquina_seleccionada.mantenimiento = maquina_seleccionada.get_mantenimiento_privado()  # Restaura el mantenimiento
-            maquina_reparar = Mantenimiento(maquina_seleccionada, tecnico, dia)
-            maquinas_en_reparacion.append(maquina_reparar)
+        # Crear la máquina
+        horas_int = int(horas)
+        if tipo == "Tractor":
+            nueva_maquina = Gestion.Tractor(serial, 100, horas_int)
+        elif tipo == "Fumigador":
+            nueva_maquina = Gestion.Fumigador(serial, 100, horas_int)
+        elif tipo == "Cosechador":
+            nueva_maquina = Gestion.Cosechador(serial, 100, horas_int)
+
+        Gestion.todas_las_maquinas.append(nueva_maquina)
+        messagebox.showinfo("Éxito", "Máquina registrada correctamente")
+        self.destroy()
+
+
+class VentanaTecnicos(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
+        self.title("Listado de Técnicos")
+        self.geometry("400x500")
+        self.configure(fg_color=colores["aguamarina"])
+        self.attributes('-topmost', True)
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=380, height=450)
+        self.scroll_frame.pack(pady=10, padx=10, fill="both", expand=True)
+
+        self.actualizar_lista()
+
+    def actualizar_lista(self):
+        # Limpiar frame
+        for widget in self.scroll_frame.winfo_children():
+            widget.destroy()
+
+        # Título
+        ctk.CTkLabel(self.scroll_frame,
+                     text="Técnicos Registrados",
+                     font=("Arial", 14, "bold")).pack(pady=5)
+
+        # Mostrar técnicos
+        if not Gestion.lista_tecnicos:
+            ctk.CTkLabel(self.scroll_frame,
+                         text="No hay técnicos registrados",
+                         text_color="gray").pack(pady=10)
+            return
+
+        for i, tecnico in enumerate(Gestion.lista_tecnicos, 1):
+            frame = ctk.CTkFrame(self.scroll_frame)
+            frame.pack(fill="x", pady=3, padx=5)
+
+            estado = "🟢 Libre" if not tecnico.get_laborando() else "🔴 Ocupado"
+            texto = (f"{i}. {tecnico.get_nombre()} | ID: {tecnico.get_identificacion()}\n"
+                     f"Especialidad: {tecnico.maquinaria} | Estado: {estado}")
+
+            ctk.CTkLabel(frame, text=texto, anchor="w").pack(side="left", padx=10)
+
+
+class VentanaAgregarTecnico(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Agregar Nuevo Técnico")
+        self.geometry("400x300")
+        self.configure(fg_color=colores["aguamarina"])
+        self.attributes('-topmost', True)
+        # Variables
+        self.nombre_var = ctk.StringVar()
+        self.id_var = ctk.StringVar()
+        self.tipo_var = ctk.StringVar(value="Tractor")
+
+        # Widgets
+        ctk.CTkLabel(self, text="Nombre:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.nombre_var).pack(pady=5)
+
+        ctk.CTkLabel(self, text="ID:").pack(pady=5)
+        ctk.CTkEntry(self, textvariable=self.id_var).pack(pady=5)
+
+        ctk.CTkLabel(self, text="Especialidad:").pack(pady=5)
+        ctk.CTkComboBox(self, variable=self.tipo_var,
+                        values=["Tractor", "Fumigador", "Cosechador"]).pack(pady=5)
+
+        ctk.CTkButton(self, text="Registrar Técnico", fg_color=colores["verdeclro"], command=self.validar_tecnico).pack(
+            pady=15)
+
+    def validar_tecnico(self):
+        nombre = self.nombre_var.get().strip()
+        id_tecnico = self.id_var.get().strip()
+        tipo = self.tipo_var.get()
+
+        # Validaciones
+        if not nombre:
+            messagebox.showerror("Error", "El nombre es obligatorio")
+            return
+
+        if not id_tecnico.isdigit():
+            messagebox.showerror("Error", "El ID debe ser numérico")
+            return
+
+        # Verificar ID único
+        if any(t.get_identificacion() == int(id_tecnico) for t in Gestion.lista_tecnicos):
+            messagebox.showerror("Error", "¡El ID ya está registrado!")
+            return
+
+        # Crear técnico
+        nuevo_tecnico = Gestion.Serviciotecnico(
+            nombre=nombre,
+            identificacion=int(id_tecnico),
+            maquinaria=tipo
+        )
+
+        Gestion.lista_tecnicos.append(nuevo_tecnico)
+        messagebox.showinfo("Éxito", "Técnico registrado correctamente")
+        self.destroy()
+
+
+class VentanaSeleccionMaquinas(ctk.CTkToplevel):
+    carpeta_master = os.path.dirname(__file__)
+    carpeta_imagenes = os.path.join(carpeta_master, 'Imgen_interfaz')
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Seleccionar Máquinas para Trabajar")
+        self.selecciones = []
+        self.attributes('-topmost', True)
+        # Configurar grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.configure(fg_color=colores["aguamarina"])
+
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=260, height=500)
+        self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Cargar imágenes
+        self.imagen_tractor = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))
+        self.imagen_fumigador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(150, 100))
+        self.imagen_cosechador = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(150, 100))  # !imagenes auxiliares, montar finales
+
+        self.construir_listado()
+
+    def obtener_estado_maquina(self, maquina):
+        # Verificar si está en mantenimiento o reparación
+        en_mantenimiento = any(m.maquina.get_serial() == maquina.get_serial()
+                               for m in Gestion.maquinas_en_mantenimiento)
+        en_reparacion = any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_reparacion)
+        return not (en_mantenimiento or en_reparacion)
+
+    def construir_listado(self):
+        # Obtener y clasificar máquinas
+        tractores = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Tractor)]
+        fumigadores = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Fumigador)]
+        cosechadoras = [m for m in Gestion.todas_las_maquinas if isinstance(m, Gestion.Cosechador)]
+
+        # Crear tarjetas
+        row = 0
+        for tipo, maquinas, imagen in [
+            ("Tractor", tractores, self.imagen_tractor),
+            ("Fumigador", fumigadores, self.imagen_fumigador),
+            ("Cosechador", cosechadoras, self.imagen_cosechador)
+        ]:
+            if maquinas:
+                ctk.CTkLabel(self.scroll_frame, text=tipo,
+                             font=("Arial", 14, "bold"), text_color=colores["crema"], ).grid(row=row, column=0, pady=10,
+                                                                                             sticky="n")
+                row += 1
+
+                for maquina in maquinas:
+                    frame = ctk.CTkFrame(self.scroll_frame, fg_color=colores["crema"])  # !quitar color de fondo
+                    frame.grid(row=row, column=0, pady=5, padx=5, sticky="ew")
+
+                    # Estado
+                    disponible = self.obtener_estado_maquina(maquina)
+
+                    # Imagen
+                    ctk.CTkLabel(frame, image=imagen, text="", text_color=colores["aguamarina"]).grid(row=0, column=0,
+                                                                                                      padx=10)
+
+                    # Serial
+                    ctk.CTkLabel(frame, text=maquina.get_serial(), text_color=colores["aguamarina"]).grid(row=1,
+                                                                                                          column=0)
+
+                    # Checkbox
+                    var = ctk.BooleanVar()
+                    chk = ctk.CTkCheckBox(frame, text="", variable=var)
+                    chk.grid(row=0, column=1, padx=10)
+
+                    if not disponible:
+                        chk.configure(state="disabled")
+                        frame.configure(fg_color="#3a3a3a")  # Color diferente para no disponibles
+
+                    self.selecciones.append((maquina, var))
+                    row += 1
+
+        # Botón de confirmar
+        btn_confirmar = ctk.CTkButton(self.scroll_frame, text="Confirmar Selección",
+                                      command=self.confirmar_seleccion)
+        btn_confirmar.grid(row=row, column=0, pady=20)
+        btn_confirmar.configure(fg_color=colores["verdeclro"])
+
+    def confirmar_seleccion(self):
+        seleccionadas = [maquina for maquina, var in self.selecciones if var.get()]
+        # Aquí llamarías a la lógica de Gestion para enviar a trabajar
+        print("Máquinas seleccionadas:", [m.get_serial() for m in seleccionadas])
+
+        self.destroy()
+
+
+class VentanaMantenimiento(ctk.CTkToplevel):
+    def __init__(self, parent, tipo_accion):
+        super().__init__(parent)
+        self.title(f"Programar {tipo_accion}")
+        self.geometry("800x600")
+        self.attributes('-topmost', True)
+        self.tipo_accion = tipo_accion
+
+        # Configurar grid principal
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=780, height=500)
+        self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+
+        self.construir_interfaz()
+
+    def construir_interfaz(self):
+        # Obtener máquinas según el tipo de acción
+        if self.tipo_accion == "Mantenimiento":
+            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento > 0]
         else:
-            print(f"⚠️ No hay técnicos disponibles para reparar el {tipo} {maquina_seleccionada.get_serial()}.")
+            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento == 0]
+
+        if not maquinas:
+            ctk.CTkLabel(self.scroll_frame,
+                         text=f"No hay máquinas necesitando {self.tipo_accion.lower()}",
+                         text_color="gray40").pack(pady=20)
+            return
+
+        # Crear tarjetas para cada máquina
+        self.selecciones = []
+        for maquina in maquinas:
+            frame = ctk.CTkFrame(self.scroll_frame)
+            frame.pack(fill="x", pady=5, padx=5)
+
+            # Estado de disponibilidad
+            disponible = self.verificar_disponibilidad(maquina)
+
+            # Imagen representativa
+            #if maquina.__class__.__name__=='Tractor'
+            imagen_accion = ctk.CTkImage(
+                light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+                size=(80, 80))
+            ctk.CTkLabel(frame, image=imagen_accion, text="").grid(row=0, column=0, padx=10)
+
+            # Información de la máquina
+            info_text = f"{maquina.__class__.__name__}\nSerial: {maquina.get_serial()}\nHoras de mantenimiento: {maquina.get_mantenimiento()}"
+            ctk.CTkLabel(frame, text=info_text, justify="left").grid(row=0, column=1, sticky="w")
+
+            # Checkbox de selección
+            var = ctk.BooleanVar()
+            chk = ctk.CTkCheckBox(frame, text="Seleccionar", variable=var, state="normal" if disponible else "disabled")
+            chk.grid(row=0, column=2, padx=10)
+
+            # Lista de técnicos disponibles
+            tecnicos_disponibles = self.obtener_tecnicos(maquina)
+            combo = ctk.CTkComboBox(frame, values=[t.get_nombre() for t in tecnicos_disponibles])
+            combo.set("Seleccione técnico" if tecnicos_disponibles else "Sin técnicos disponibles")
+            combo.grid(row=0, column=3, padx=10)
+
+            if not tecnicos_disponibles:
+                combo.configure(state="disabled")
+                chk.configure(state="disabled")
+
+            self.selecciones.append((maquina, var, combo, tecnicos_disponibles))
+
+        # Botón de confirmación
+        btn_confirmar = ctk.CTkButton(
+            self,
+            text=f"Confirmar {self.tipo_accion}",
+            command=self.procesar_seleccion
+        )
+        btn_confirmar.grid(row=1, column=0, pady=10)
+
+    def verificar_disponibilidad(self, maquina):
+        if self.tipo_accion == "Mantenimiento":
+            return not any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_mantenimiento)
+        else:
+            return True  # Para reparación siempre disponible si está en la lista
+
+    def obtener_tecnicos(self, maquina):
+        tipo = maquina.__class__.__name__
+        return [t for t in Gestion.lista_tecnicos
+                if t.maquinaria == tipo and not t.get_laborando()]
+
+    def procesar_seleccion(self):
+        seleccionados = []
+        tecnicos_asignados = set()
+
+        for maquina, var, combo, tecnicos in self.selecciones:
+            if var.get():
+                if combo.get() == "Seleccione técnico":
+                    messagebox.showerror("Error", f"Seleccione un técnico para {maquina.get_serial()}")
+                    return
+
+                # Obtener técnico seleccionado
+                idx = combo._values.index(combo.get())
+                tecnico = tecnicos[idx]
+
+                if tecnico in tecnicos_asignados:
+                    messagebox.showerror("Error", "Un técnico no puede atender múltiples máquinas")
+                    return
+
+                seleccionados.append((maquina, tecnico))
+                tecnicos_asignados.add(tecnico)
+
+        # Validar cantidad de técnicos
+        if len(seleccionados) > len([t for t in Gestion.lista_tecnicos if not t.get_laborando()]):
+            messagebox.showerror("Error", "No hay suficientes técnicos disponibles")
+            return
+
+        # Ejecutar la acción correspondiente
+        for maquina, tecnico in seleccionados:
+            if self.tipo_accion == "Mantenimiento":
+                Gestion.Mantenimiento.iniciar_mantenimiento(maquina)
+            else:
+                Gestion.Mantenimiento.reparar(maquina)
+
+        messagebox.showinfo("Éxito", f"{len(seleccionados)} máquinas programadas para {self.tipo_accion.lower()}")
+        self.destroy()
 
 
-# Configuración inicial
-dia = 0
-
-# Instancia de técnicos
-tecnico1 = Serviciotecnico("Juan", 123456, "Cosechador")
-tecnico2 = Serviciotecnico("Sofía", 987654, "Fumigador")
-tecnico3 = Serviciotecnico("Julio", 147258, "Tractor")
-tecnico4 = Serviciotecnico("df", 147257, "Tractor")
-tecnico5 = Serviciotecnico("h", 147255, "Tractor")
-# Instancia de máquinas
-maquina1 = Cosechador("C1", 100, 13)
-maquina2 = Fumigador("F1", 100, 0)
-maquina3 = Tractor("T1", 100, 5)
-maquina4 = Cosechador("C2", 100, 5)
-maquina5 = Fumigador("F2", 100, 0)
-maquina6 = Tractor("T2", 100, 5)
-
-# Listas de técnicos y máquinas
-lista_tecnicos = [tecnico1, tecnico2, tecnico3,tecnico4,tecnico5]
-todas_las_maquinas = [maquina1, maquina2, maquina3, maquina4, maquina5, maquina6]
-
-# Ejecución del programa
 if __name__ == "__main__":
-    menu(todas_las_maquinas)
+    Menu()
