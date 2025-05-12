@@ -58,20 +58,8 @@ class Menu:
                                       image=listado_maquina_imagen,
                                       text='1', command=self.mostrar_ventana_lista, fg_color=colores["crema"],
                                       text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
-                                      ).grid(row=0, column=0, padx=10, pady=10)  # !trabajando aqui
+                                      ).pack(anchor=CENTER,pady=10,padx=10)
 
-
-        programar_mantenimiento = ctk.CTkButton(scroll_menu,
-                                                image=listado_maquina_imagen,
-                                                text='5', command=self.pl, fg_color=colores["crema"],
-                                                text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
-                                                ).grid(row=2, column=0, padx=10, pady=10)
-
-        reparar_maquinas = ctk.CTkButton(scroll_menu,
-                                         image=listado_maquina_imagen,
-                                         text='4', command=self.pl, fg_color=colores["crema"],
-                                         text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
-                                         ).grid(row=3, column=0, padx=10, pady=10)
 
         self.btn_mantenimiento = ctk.CTkButton(
             scroll_menu,
@@ -81,7 +69,7 @@ class Menu:
             fg_color=colores["crema"],
             text_color=colores["aguamarina"]
         )
-        self.btn_mantenimiento.grid(row=2, column=0, padx=10, pady=10)
+        self.btn_mantenimiento.pack(anchor=CENTER,pady=10,padx=10)
 
         self.btn_reparacion = ctk.CTkButton(scroll_menu,
                                             image=listado_maquina_imagen,
@@ -89,7 +77,7 @@ class Menu:
                                             text_color=colores["aguamarina"],
                                             command=self.abrir_reparacion
                                             )
-        self.btn_reparacion.grid(row=3, column=0, padx=10, pady=10)
+        self.btn_reparacion.pack(anchor=CENTER,pady=10,padx=10)
 
         self.btn_avanzar_dia = ctk.CTkButton(
             scroll_menu,
@@ -100,14 +88,14 @@ class Menu:
             text_color=colores["aguamarina"],
             hover_color=colores["aguamarina"]
         )
-        self.btn_avanzar_dia.grid(row=4, column=0, padx=10, pady=10)
+        self.btn_avanzar_dia.pack(anchor=CENTER,pady=10,padx=10)
 
         ver_tecnicos_btn = ctk.CTkButton(
             scroll_menu,
             text="👨🔧 Ver Técnicos",
             command=self.mostrar_ventana_tecnicos
         )
-        ver_tecnicos_btn.grid(row=5, column=0, padx=10, pady=10)
+        ver_tecnicos_btn.pack(anchor=CENTER,pady=10,padx=10)
         ver_tecnicos_btn.configure(fg_color=colores["verdeclro"])
 
         agregar_tecnico_btn = ctk.CTkButton(
@@ -115,86 +103,16 @@ class Menu:
             text="➕ Agregar Técnico",
             command=self.mostrar_ventana_agregar_tecnico
         )
-        agregar_tecnico_btn.grid(row=6, column=0, padx=10, pady=10)
+        agregar_tecnico_btn.pack(anchor=CENTER,pady=10,padx=10)
         agregar_tecnico_btn.configure(fg_color=colores["verdeclro"])
 
-        # ?? COLUMNA 2
-
-        # /* previsualización del listado de maquinas
-
-        listado_maquina_preview = ctk.CTkScrollableFrame(master=scroll_menu,
-                                                         width=300,
-                                                         height=100,
-                                                         fg_color=colores["verdeoscuro"])
-        listado_maquina_preview.grid(row=0, column=1, padx=10)
-        texto_previw_maquinas = ctk.CTkLabel(listado_maquina_preview, textvariable=self._text_preview).pack()
-
-        # /* previsualización de programar mantenimiento
-
-        opciones_mantenimiento = ctk.CTkFrame(master=scroll_menu,
-                                                width=300,
-                                                height=100,
-                                                fg_color=colores["verdeoscuro"])
-        opciones_mantenimiento.grid(row=2, column=1, padx=10)
-
-        boton_tractor_mantenimieto = ctk.CTkButton(opciones_mantenimiento,
-                                                    text='54515', fg_color=colores["crema"],
-                                                    text_color=colores["aguamarina"]).place(relx=1 / 3)
-        boton_fumigador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
-                                                        text='papapapa',
-                                                        width=50,
-                                                        height=50, fg_color=colores["crema"],
-                                                        text_color=colores["aguamarina"]).place(
-            relx=2 / 3)
-        boton_cosechador_mantenimiento = ctk.CTkButton(opciones_mantenimiento,
-                                                        text='adaswasd',
-                                                        width=50,
-                                                        height=50, fg_color=colores["crema"],
-                                                        text_color=colores["aguamarina"]).place(
-            relx=1 / 3, y=30)
-
-        # /* previsualización de reparar
-
-        opciones_repar = ctk.CTkFrame(master=scroll_menu,
-                                      width=300,
-                                      height=100,
-                                      fg_color=colores["verdeoscuro"])
-
-        opciones_repar.grid(row=3, column=1, padx=10)
-
-        tractor_reparar = ctk.CTkButton(opciones_repar,
-                                        text='54515', fg_color=colores["crema"],
-                                        text_color=colores["aguamarina"]).place(relx=1 / 3)
-
-        fumigador_reparar = ctk.CTkButton(opciones_repar,
-                                          text='papapapa',
-                                          width=50,
-                                          height=50, fg_color=colores["crema"], text_color=colores["aguamarina"]).place(
-            relx=2 / 3)
-
-        cosechador_reparar = ctk.CTkButton(opciones_repar,
-                                           text='adaswasd',
-                                           width=50,
-                                           height=50, fg_color=colores["crema"],
-                                           text_color=colores["aguamarina"]).place(relx=1 / 3, y=30)
-
-        # /* previsualización de avanzar dia
-        apartado_avanzar_dia = ctk.CTkFrame(master=scroll_menu,
-                                            width=300,
-                                            height=100,
-                                            fg_color=colores["verdeoscuro"])
-
-        apartado_avanzar_dia.grid(row=4, column=1, padx=10)
-
-        boton_tractor_reparar = ctk.CTkLabel(apartado_avanzar_dia,
-                                             text='54515').place(relx=1 / 3)
 
         agregar_maquina_btn = ctk.CTkButton(
             scroll_menu,
             text="➕ Agregar Máquina",
             command=self.mostrar_ventana_agregar
         )
-        agregar_maquina_btn.grid(row=6, column=1, padx=10, pady=10)
+        agregar_maquina_btn.pack(anchor=CENTER,pady=10,padx=10)
         agregar_maquina_btn.configure(fg_color=colores["verdeclro"])
 
         self.__ventana.mainloop()
@@ -802,10 +720,33 @@ class VentanaMantenimiento(ctk.CTkToplevel):
             disponible = self.verificar_disponibilidad(maquina)
 
             # Imagen representativa
-            #if maquina.__class__.__name__=='Tractor'
-            imagen_accion = ctk.CTkImage(
-                light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
-                size=(80, 80))
+            if maquina.__class__.__name__=='Tractor':
+                if not maquina.mantenimiento==0:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'Tractor x16.png')),
+                        size=(120, 100))
+                else:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor Daño x16.png')),
+                        size=(120, 100))
+            elif maquina.__class__.__name__=='Cosechador':
+                if not maquina.mantenimiento == 0:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor recolector x16.png')),
+                        size=(120, 100))
+                else:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'Recolector Dañado x16.png')),
+                        size=(120, 100))
+            elif maquina.__class__.__name__=='Fumigador':
+                if not maquina.mantenimiento == 0:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor fumigador x16.png')),
+                        size=(120, 100))
+                else:
+                    imagen_accion = ctk.CTkImage(
+                        light_image=Image.open(os.path.join(carpeta_imagenes, 'Fumigador Dañado x16.png')),
+                        size=(120, 100))
             ctk.CTkLabel(frame, image=imagen_accion, text="").grid(row=0, column=0, padx=10)
 
             # Información de la máquina
