@@ -471,7 +471,7 @@ class VentanaMantenimiento(ctk.CTkToplevel):
 
     def verificar_disponibilidad(self, maquina):
         if self.tipo_accion == "Mantenimiento":
-            return not any(m.maquina.get_serial() == maquina.get_serial()
+            return not any(m.get_serial() == maquina.get_serial()
                             for m in Gestion.maquinas_en_mantenimiento)
         else:
             return True  # Para reparación siempre disponible si está en la lista

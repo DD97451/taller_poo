@@ -118,12 +118,14 @@ def procesar_nuevo_dia():
     # Procesar mantenimientos
     for maquina in maquinas_en_mantenimiento.copy():
         maquina.mantenimiento -= 1
+        maquina.bloqueo = 0
         if maquina.mantenimiento <= 0:
-            maquina.bloqueo = 0
+
             maquinas_en_mantenimiento.remove(maquina)
 
     # Procesar reparaciones
     for maquina in maquinas_en_reparacion.copy():
+        maquina.bloqueo = 0
         maquina.mantenimiento -= 1
         if maquina.mantenimiento <= 0:
             maquina.bloqueo = 0
