@@ -22,15 +22,16 @@ class Menu:
         self.__ventana.configure(fg_color=colores["aguamarina"])
         # configuracíon de ventana principal
         self.__ventana.title('Sistema de Gestión de Maquinaria')
-        self.__ventana.geometry('500x800')
+        self.__ventana.geometry('1350x900')  # Tamaño de la ventana
+
         # self.__ventana.iconbitmap(os.path.join('Imgen_interfaz', 'icono.ico'))
         # configuracion de previe
 
         # ? Titulo del menu
-        titulo_imagen = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'TITULO x16.png')),
+        titulo_imagen = ctk.CTkImage(light_image=Image.open(os.path.join(carpeta_imagenes, 'TITULO x3.png')),
                                      size=(700, 350))
         titulo_ventana = ctk.CTkLabel(master=self.__ventana, image=titulo_imagen, text='', text_color=colores["crema"])
-        titulo_ventana.place(relx=0.5,y=100, anchor=CENTER)
+
         # ?Botones de elección
         scroll_menu = (ctk.CTkScrollableFrame(master=self.__ventana, width=600, height=600, ))
 
@@ -44,44 +45,28 @@ class Menu:
         lista_maquina = ctk.CTkButton(scroll_menu,
                                       image=listado_maquina_imagen,
                                       text='1', command=self.mostrar_ventana_lista, fg_color=colores["crema"],
-                                      text_color=colores["aguamarina"],
+                                      text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
                                       ).grid(row=0, column=0, padx=10, pady=10)  # !trabajando aqui
 
+        titulo_ventana.pack()
 
         programar_mantenimiento = ctk.CTkButton(scroll_menu,
                                                 image=listado_maquina_imagen,
                                                 text='5', command=self.pl, fg_color=colores["crema"],
-                                                text_color=colores["aguamarina"]
+                                                text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
                                                 ).grid(row=2, column=0, padx=10, pady=10)
 
         reparar_maquinas = ctk.CTkButton(scroll_menu,
-                                            image=listado_maquina_imagen,
-                                            text='4', fg_color=colores["crema"],
-                                            text_color=colores["aguamarina"]
-                                            ).grid(row=3, column=0, padx=10, pady=10)
-
-        self.btn_mantenimiento = ctk.CTkButton(
-            scroll_menu,
-            image=listado_maquina_imagen,
-            text='5',
-            command=self.abrir_mantenimiento,
-            fg_color=colores["crema"],
-            text_color=colores["aguamarina"]
-        )
-        self.btn_mantenimiento.grid(row=2, column=0, padx=10, pady=10)
-
-        self.btn_reparacion = ctk.CTkButton(scroll_menu,
-            image=listado_maquina_imagen,
-            text='4', fg_color=colores["crema"],
-            text_color=colores["aguamarina"],
-            command=self.abrir_reparacion
-        )
-        self.btn_reparacion.grid(row=3, column=0, padx=10, pady=10)
+                                         image=listado_maquina_imagen,
+                                         text='4', command=self.pl, fg_color=colores["crema"],
+                                         text_color=colores["aguamarina"], hover_color=colores["aguamarina"]
+                                         ).grid(row=3, column=0, padx=10, pady=10)
 
         avanzar_dia = ctk.CTkButton(scroll_menu,
                                     image=listado_maquina_imagen,
                                     text='ppl',
-                                    command=self.pl, fg_color=colores["crema"], text_color=colores["aguamarina"]
+                                    command=self.pl, fg_color=colores["crema"], text_color=colores["aguamarina"],
+                                    hover_color=colores["aguamarina"]
                                     ).grid(row=4, column=0, padx=10, pady=10)
 
         ver_tecnicos_btn = ctk.CTkButton(
@@ -105,18 +90,18 @@ class Menu:
         # /* previsualización del listado de maquinas
 
         listado_maquina_preview = ctk.CTkScrollableFrame(master=scroll_menu,
-                                                            width=300,
-                                                            height=100,
-                                                            fg_color=colores["verdeoscuro"])
+                                                         width=300,
+                                                         height=100,
+                                                         fg_color=colores["verdeoscuro"])
         listado_maquina_preview.grid(row=0, column=1, padx=10)
         texto_previw_maquinas = ctk.CTkLabel(listado_maquina_preview, textvariable=self._text_preview).pack()
 
         # /* previsualización de programar mantenimiento
 
         opciones_mantenimiento = ctk.CTkFrame(master=scroll_menu,
-                                                width=300,
-                                                height=100,
-                                                fg_color=colores["verdeoscuro"])
+                                              width=300,
+                                              height=100,
+                                              fg_color=colores["verdeoscuro"])
         opciones_mantenimiento.grid(row=2, column=1, padx=10)
 
         boton_tractor_mantenimieto = ctk.CTkButton(opciones_mantenimiento,
@@ -199,12 +184,6 @@ class Menu:
     def update_text(self):
         archivo = open('historial_C1.txt', 'r', encoding='utf-8')
         self._text_preview.set(archivo.read())
-
-    def abrir_mantenimiento(self):
-        VentanaMantenimiento(self.__ventana, tipo_accion="Mantenimiento")
-
-    def abrir_reparacion(self):
-        VentanaMantenimiento(self.__ventana, tipo_accion="Reparación")
 
     def pl(self):
         pass
@@ -397,7 +376,6 @@ class VentanaAgregarMaquina(ctk.CTkToplevel):
         self.title("Agregar Nueva Máquina")
         self.geometry("400x300")
         self.configure(fg_color=colores["aguamarina"])
-        self.attributes('-topmost', True)
         # Configuración de widgets
         self.tipo_var = ctk.StringVar(value="Tractor")
         self.serial_var = ctk.StringVar()
@@ -459,7 +437,6 @@ class VentanaTecnicos(ctk.CTkToplevel):
         super().__init__()
         self.title("Listado de Técnicos")
         self.geometry("400x500")
-        self.attributes('-topmost', True)
         self.configure(fg_color=colores["aguamarina"])
 
         # Frame deslizable
@@ -501,7 +478,6 @@ class VentanaAgregarTecnico(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Agregar Nuevo Técnico")
         self.geometry("400x300")
-        self.attributes('-topmost', True)
         self.configure(fg_color=colores["aguamarina"])
 
         # Variables
@@ -555,9 +531,6 @@ class VentanaAgregarTecnico(ctk.CTkToplevel):
 
 
 class VentanaSeleccionMaquinas(ctk.CTkToplevel):
-    carpeta_master = os.path.dirname(__file__)
-    carpeta_imagenes = os.path.join(carpeta_master, 'Imgen_interfaz')
-
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Seleccionar Máquinas para Trabajar")
@@ -566,24 +539,22 @@ class VentanaSeleccionMaquinas(ctk.CTkToplevel):
         # Configurar grid
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-
         self.configure(fg_color=colores["aguamarina"])
-        self.attributes('-topmost', True)
 
         # Frame deslizable
         self.scroll_frame = ctk.CTkScrollableFrame(self, width=260, height=500)
         self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Cargar imágenes
-        self.imagen_tractor =ctk.CTkImage(
-            light_image=Image.open(os.path.join('Imgen_interfaz', 'tractor x16.png')),
-            size=(150, 100))
+        self.imagen_tractor = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))
         self.imagen_fumigador = ctk.CTkImage(
-            light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor fumigador x16.png')),
-            size=(150, 100))
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))
         self.imagen_cosechador = ctk.CTkImage(
-            light_image=Image.open(os.path.join(carpeta_imagenes, 'tractor recolector x16.png')),
-            size=(150, 100))  # !imagenes auxiliares, montar finales
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(100, 100))  # !imagenes auxiliares, montar finales
 
         self.construir_listado()
 
@@ -655,131 +626,175 @@ class VentanaSeleccionMaquinas(ctk.CTkToplevel):
         self.destroy()
 
 
-class VentanaMantenimiento(ctk.CTkToplevel):
-    def __init__(self, parent, tipo_accion):
+class VentanaBaseSeleccion(ctk.CTkToplevel):
+    def __init__(self, parent, titulo, tipo_accion):
         super().__init__(parent)
-        self.title(f"Programar {tipo_accion}")
+        self.title(titulo)
         self.geometry("800x600")
-        self.attributes('-topmost', True)
         self.tipo_accion = tipo_accion
+        self.selecciones = []
+        self.tecnicos_disponibles = self.obtener_tecnicos_disponibles()
 
-        # Configurar grid principal
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        # Configurar imágenes
+        self.imagen_accion = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(80, 80)
+        )
 
-        # Frame deslizable
-        self.scroll_frame = ctk.CTkScrollableFrame(self, width=780, height=500)
-        self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        # Frame principal
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=780, height=580)
+        self.scroll_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
+        # Contadores de selección
+        self.contadores = {
+            "Tractor": {"disponibles": 0, "seleccionados": 0},
+            "Fumigador": {"disponibles": 0, "seleccionados": 0},
+            "Cosechador": {"disponibles": 0, "seleccionados": 0}
+        }
 
         self.construir_interfaz()
 
+    def obtener_tecnicos_disponibles(self):
+        return {
+            "Tractor": len([t for t in Gestion.lista_tecnicos if t.maquinaria == "Tractor" and not t.get_laborando()]),
+            "Fumigador": len(
+                [t for t in Gestion.lista_tecnicos if t.maquinaria == "Fumigador" and not t.get_laborando()]),
+            "Cosechador": len(
+                [t for t in Gestion.lista_tecnicos if t.maquinaria == "Cosechador" and not t.get_laborando()])
+        }
+
+    def es_elegible(self, maquina):
+        raise NotImplementedError("Debe implementarse en subclases")
+
+    def obtener_mensaje_estado(self, maquina):
+        raise NotImplementedError("Debe implementarse en subclases")
+
     def construir_interfaz(self):
-        # Obtener máquinas según el tipo de acción
-        if self.tipo_accion == "Mantenimiento":
-            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento > 0]
-        else:
-            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento == 0]
+        # Cabecera
+        ctk.CTkLabel(self.scroll_frame,
+                     text=f"Técnicos disponibles: "
+                          f"Tractor ({self.contadores['Tractor']['disponibles']}) | "
+                          f"Fumigador ({self.contadores['Fumigador']['disponibles']}) | "
+                          f"Cosechador ({self.contadores['Cosechador']['disponibles']})",
+                     font=("Arial", 12)).pack(pady=10)
 
-        if not maquinas:
-            ctk.CTkLabel(self.scroll_frame,
-                         text=f"No hay máquinas necesitando {self.tipo_accion.lower()}",
-                         text_color="gray40").pack(pady=20)
-            return
-
-        # Crear tarjetas para cada máquina
-        self.selecciones = []
-        for maquina in maquinas:
-            frame = ctk.CTkFrame(self.scroll_frame)
-            frame.pack(fill="x", pady=5, padx=5)
-
-            # Estado de disponibilidad
-            disponible = self.verificar_disponibilidad(maquina)
-
-            # Imagen representativa
-            #if maquina.__class__.__name__=='Tractor'
-            imagen_accion = ctk.CTkImage(
-                light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
-                size=(80, 80))
-            ctk.CTkLabel(frame, image=imagen_accion, text="").grid(row=0, column=0, padx=10)
-
-            # Información de la máquina
-            info_text = f"{maquina.__class__.__name__}\nSerial: {maquina.get_serial()}\nHoras de mantenimiento: {maquina.get_mantenimiento()}"
-            ctk.CTkLabel(frame, text=info_text, justify="left").grid(row=0, column=1, sticky="w")
-
-            # Checkbox de selección
-            var = ctk.BooleanVar()
-            chk = ctk.CTkCheckBox(frame, text="Seleccionar", variable=var, state="normal" if disponible else "disabled")
-            chk.grid(row=0, column=2, padx=10)
-
-            # Lista de técnicos disponibles
-            tecnicos_disponibles = self.obtener_tecnicos(maquina)
-            combo = ctk.CTkComboBox(frame, values=[t.get_nombre() for t in tecnicos_disponibles])
-            combo.set("Seleccione técnico" if tecnicos_disponibles else "Sin técnicos disponibles")
-            combo.grid(row=0, column=3, padx=10)
-
-            if not tecnicos_disponibles:
-                combo.configure(state="disabled")
-                chk.configure(state="disabled")
-
-            self.selecciones.append((maquina, var, combo, tecnicos_disponibles))
+        # Listado de máquinas
+        for maquina in Gestion.todas_las_maquinas:
+            if self.es_elegible(maquina):
+                tipo = maquina.__class__.__name__
+                self.contadores[tipo]["disponibles"] += 1
+                self.crear_tarjeta_maquina(maquina, tipo)
 
         # Botón de confirmación
-        btn_confirmar = ctk.CTkButton(
-            self,
-            text=f"Confirmar {self.tipo_accion}",
-            command=self.procesar_seleccion
-        )
-        btn_confirmar.grid(row=1, column=0, pady=10)
+        btn_confirmar = ctk.CTkButton(self.scroll_frame,
+                                      text=f"Iniciar {self.tipo_accion}",
+                                      command=self.confirmar_seleccion)
+        btn_confirmar.pack(pady=20)
 
-    def verificar_disponibilidad(self, maquina):
-        if self.tipo_accion == "Mantenimiento":
-            return not any(m.maquina.get_serial() == maquina.get_serial()
-                            for m in Gestion.maquinas_en_mantenimiento)
+    def crear_tarjeta_maquina(self, maquina, tipo):
+        frame = ctk.CTkFrame(self.scroll_frame)
+        frame.pack(fill="x", pady=5, padx=10)
+
+        # Imagen
+        ctk.CTkLabel(frame, image=self.imagen_accion, text="").grid(row=0, column=0, rowspan=2, padx=10)
+
+        # Información
+        ctk.CTkLabel(frame, text=maquina.get_serial(), font=("Arial", 12)).grid(row=0, column=1, sticky="w")
+        ctk.CTkLabel(frame, text=self.obtener_mensaje_estado(maquina)).grid(row=1, column=1, sticky="w")
+
+        # Checkbox
+        var = ctk.BooleanVar()
+        chk = ctk.CTkCheckBox(frame, text="", variable=var,
+                              command=lambda m=maquina, t=tipo: self.actualizar_contador(m, t, var))
+
+        # Verificar disponibilidad inicial
+        if self.contadores[tipo]["disponibles"] == 0:
+            chk.configure(state="disabled")
+            frame.configure(fg_color="#3a3a3a")
+
+        chk.grid(row=0, column=2, rowspan=2, padx=10)
+        self.selecciones.append((maquina, var, tipo))
+
+    def actualizar_contador(self, maquina, tipo, var):
+        if var.get():
+            self.contadores[tipo]["seleccionados"] += 1
         else:
-            return True  # Para reparación siempre disponible si está en la lista
+            self.contadores[tipo]["seleccionados"] -= 1
 
-    def obtener_tecnicos(self, maquina):
-        tipo = maquina.__class__.__name__
-        return [t for t in Gestion.lista_tecnicos
-                if t.maquinaria == tipo and not t.get_laborando()]
+        # Actualizar estado de checkboxes
+        for m, v, t in self.selecciones:
+            if t == tipo:
+                checkbox = v._checkbutton
+                if self.contadores[t]["seleccionados"] >= self.contadores[t]["disponibles"]:
+                    if not v.get():
+                        checkbox.configure(state="disabled")
+                else:
+                    checkbox.configure(state="normal")
 
-    def procesar_seleccion(self):
-        seleccionados = []
-        tecnicos_asignados = set()
+    def confirmar_seleccion(self):
+        maquinas_seleccionadas = [m for m, v, t in self.selecciones if v.get()]
 
-        for maquina, var, combo, tecnicos in self.selecciones:
-            if var.get():
-                if combo.get() == "Seleccione técnico":
-                    messagebox.showerror("Error", f"Seleccione un técnico para {maquina.get_serial()}")
-                    return
+        # Verificar límites técnicos
+        errores = []
+        for tipo in ["Tractor", "Fumigador", "Cosechador"]:
+            if self.contadores[tipo]["seleccionados"] > self.contadores[tipo]["disponibles"]:
+                errores.append(
+                    """{tipo}: {self.contadores[tipo]['seleccionados'] seleccionados vs {self.contadores[tipo]['disponibles']} técnicos""")
 
-                # Obtener técnico seleccionado
-                idx = combo._values.index(combo.get())
-                tecnico = tecnicos[idx]
+            if errores:
+                messagebox.showerror("Error", "Límite de técnicos excedido:\n" + "\n".join(errores))
+                return
 
-                if tecnico in tecnicos_asignados:
-                    messagebox.showerror("Error", "Un técnico no puede atender múltiples máquinas")
-                    return
-
-                seleccionados.append((maquina, tecnico))
-                tecnicos_asignados.add(tecnico)
-
-        # Validar cantidad de técnicos
-        if len(seleccionados) > len([t for t in Gestion.lista_tecnicos if not t.get_laborando()]):
-            messagebox.showerror("Error", "No hay suficientes técnicos disponibles")
-            return
-
-        # Ejecutar la acción correspondiente
-        for maquina, tecnico in seleccionados:
-            if self.tipo_accion == "Mantenimiento":
-                Gestion.Mantenimiento.iniciar_mantenimiento(maquina)
+        # Asignar técnicos y realizar acción
+        for maquina in maquinas_seleccionadas:
+            tipo = maquina.__class__.__name__
+            tecnico = self.seleccionar_tecnico(tipo)
+            if tecnico:
+                if self.tipo_accion == "Mantenimiento":
+                    Gestion.Mantenimiento.iniciar_mantenimiento(maquina)
+                else:
+                    Gestion.Mantenimiento.reparar(maquina)
+                tecnico.cambiar_estado()
             else:
-                Gestion.Mantenimiento.reparar(maquina)
+                messagebox.showwarning("Advertencia", f"No hay técnicos disponibles para {maquina.get_serial()}")
 
-        messagebox.showinfo("Éxito", f"{len(seleccionados)} máquinas programadas para {self.tipo_accion.lower()}")
         self.destroy()
 
+    def seleccionar_tecnico(self, tipo):
+        for tecnico in Gestion.lista_tecnicos:
+            if tecnico.maquinaria == tipo and not tecnico.get_laborando():
+                return tecnico
+        return None
+
+
+class VentanaMantenimiento(VentanaBaseSeleccion):
+    def __init__(self, parent):
+        super().__init__(parent, "Programar Mantenimiento Preventivo", "Mantenimiento")
+
+    def es_elegible(self, maquina):
+        en_mantenimiento = any(m.maquina.get_serial() == maquina.get_serial()
+                               for m in Gestion.maquinas_en_mantenimiento)
+        en_reparacion = any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_reparacion)
+        return maquina.mantenimiento > 0 and not en_mantenimiento and not en_reparacion
+
+    def obtener_mensaje_estado(self, maquina):
+        return f"Horas restantes: {maquina.mantenimiento}"
+
+
+class VentanaReparacion(VentanaBaseSeleccion):
+    def __init__(self, parent):
+        super().__init__(parent, "Reparar Máquinas", "Reparación")
+
+    def es_elegible(self, maquina):
+        en_mantenimiento = any(m.maquina.get_serial() == maquina.get_serial()
+                               for m in Gestion.maquinas_en_mantenimiento)
+        en_reparacion = any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_reparacion)
+        return maquina.mantenimiento <= 0 and not en_reparacion and not en_mantenimiento
+
+    def obtener_mensaje_estado(self, maquina):
+        return "⚠️ Necesita reparación urgente"
 
 
 if __name__ == "__main__":
