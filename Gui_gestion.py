@@ -49,16 +49,22 @@ class Menu:
                                         ))
         self.enviar_maquinas.grid(row=1,column=0,padx=10,pady=10)
 
-        programar_mantenimiento = ctk.CTkButton(scroll_menu,
-                                        image=listado_maquina_imagen,
-                                        text='5', command=self.pl
-                                        ).grid(row=2, column=0, padx=10,pady=10)
+        self.btn_mantenimiento = ctk.CTkButton(
+            scroll_menu,
+            image=listado_maquina_imagen,
+            text="Programar Mantenimiento",
+            command=self.abrir_mantenimiento
+        )
+        self.btn_mantenimiento.grid(row=2, column=0, padx=10, pady=10)
 
+        self.btn_reparacion = ctk.CTkButton(
+            scroll_menu,
+            image=listado_maquina_imagen,
+            text="Reparar Máquinas",
+            command=self.abrir_reparacion
+        )
+        self.btn_reparacion.grid(row=3, column=0, padx=10, pady=10)
 
-        reparar_maquinas = ctk.CTkButton(scroll_menu,
-                                        image=listado_maquina_imagen,
-                                        text='4', command=self.pl
-                                        ).grid(row=3, column=0, padx=10,pady=10)
 
 
         avanzar_dia=ctk.CTkButton(scroll_menu,
@@ -180,10 +186,18 @@ class Menu:
 
     def actualizar_preview_maquinas(self):
         pass
+
     def update_text(self):
 
         archivo = open('historial_C1.txt', 'r', encoding='utf-8')
         self._text_preview.set(archivo.read())
+
+    def abrir_mantenimiento(self):
+        VentanaMantenimiento(self.__ventana, tipo_accion="Mantenimiento")
+
+    def abrir_reparacion(self):
+        VentanaMantenimiento(self.__ventana, tipo_accion="Reparación")
+
     def pl(self):
         pass
 
@@ -591,6 +605,132 @@ class VentanaSeleccionMaquinas(ctk.CTkToplevel):
         print("Máquinas seleccionadas:", [m.get_serial() for m in seleccionadas])
 
         self.destroy()
+
+
+class VentanaMantenimiento(ctk.CTkToplevel):
+    def __init__(self, parent, tipo_accion):
+        super().__init__(parent)
+        self.title(f"Programar {tipo_accion}")
+        self.geometry("800x600")
+        self.tipo_accion = tipo_accion
+
+        # Configurar grid principal
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Frame deslizable
+        self.scroll_frame = ctk.CTkScrollableFrame(self, width=780, height=500)
+        self.scroll_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Configurar imágenes
+        self.imagen_accion = ctk.CTkImage(
+            light_image=Image.open(os.path.join(carpeta_imagenes, 'll.png')),
+            size=(80, 80))
+
+        self.construir_interfaz()
+
+    def construir_interfaz(self):
+        # Obtener máquinas según el tipo de acción
+        if self.tipo_accion == "Mantenimiento":
+            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento > 0]
+        else:
+            maquinas = [m for m in Gestion.todas_las_maquinas if m.mantenimiento == 0]
+
+        if not maquinas:
+            ctk.CTkLabel(self.scroll_frame,
+                         text=f"No hay máquinas necesitando {self.tipo_accion.lower()}",
+                         text_color="gray40").pack(pady=20)
+            return
+
+        # Crear tarjetas para cada máquina
+        self.selecciones = []
+        for maquina in maquinas:
+            frame = ctk.CTkFrame(self.scroll_frame)
+            frame.pack(fill="x", pady=5, padx=5)
+
+            # Estado de disponibilidad
+            disponible = self.verificar_disponibilidad(maquina)
+
+            # Imagen representativa
+            ctk.CTkLabel(frame, image=self.imagen_accion, text="").grid(row=0, column=0, padx=10)
+
+            # Información de la máquina
+            info_text = f"{maquina.__class__.__name__}\nSerial: {maquina.get_serial()}\nHoras de mantenimiento: {maquina.get_mantenimiento()}"
+            ctk.CTkLabel(frame, text=info_text, justify="left").grid(row=0, column=1, sticky="w")
+
+            # Checkbox de selección
+            var = ctk.BooleanVar()
+            chk = ctk.CTkCheckBox(frame, text="Seleccionar", variable=var, state="normal" if disponible else "disabled")
+            chk.grid(row=0, column=2, padx=10)
+
+            # Lista de técnicos disponibles
+            tecnicos_disponibles = self.obtener_tecnicos(maquina)
+            combo = ctk.CTkComboBox(frame, values=[t.get_nombre() for t in tecnicos_disponibles])
+            combo.set("Seleccione técnico" if tecnicos_disponibles else "Sin técnicos disponibles")
+            combo.grid(row=0, column=3, padx=10)
+
+            if not tecnicos_disponibles:
+                combo.configure(state="disabled")
+                chk.configure(state="disabled")
+
+            self.selecciones.append((maquina, var, combo, tecnicos_disponibles))
+
+        # Botón de confirmación
+        btn_confirmar = ctk.CTkButton(
+            self,
+            text=f"Confirmar {self.tipo_accion}",
+            command=self.procesar_seleccion
+        )
+        btn_confirmar.grid(row=1, column=0, pady=10)
+
+    def verificar_disponibilidad(self, maquina):
+        if self.tipo_accion == "Mantenimiento":
+            return not any(m.maquina.get_serial() == maquina.get_serial()
+                            for m in Gestion.maquinas_en_mantenimiento)
+        else:
+            return True  # Para reparación siempre disponible si está en la lista
+
+    def obtener_tecnicos(self, maquina):
+        tipo = maquina.__class__.__name__
+        return [t for t in Gestion.lista_tecnicos
+                if t.maquinaria == tipo and not t.get_laborando()]
+
+    def procesar_seleccion(self):
+        seleccionados = []
+        tecnicos_asignados = set()
+
+        for maquina, var, combo, tecnicos in self.selecciones:
+            if var.get():
+                if combo.get() == "Seleccione técnico":
+                    messagebox.showerror("Error", f"Seleccione un técnico para {maquina.get_serial()}")
+                    return
+
+                # Obtener técnico seleccionado
+                idx = combo._values.index(combo.get())
+                tecnico = tecnicos[idx]
+
+                if tecnico in tecnicos_asignados:
+                    messagebox.showerror("Error", "Un técnico no puede atender múltiples máquinas")
+                    return
+
+                seleccionados.append((maquina, tecnico))
+                tecnicos_asignados.add(tecnico)
+
+        # Validar cantidad de técnicos
+        if len(seleccionados) > len([t for t in Gestion.lista_tecnicos if not t.get_laborando()]):
+            messagebox.showerror("Error", "No hay suficientes técnicos disponibles")
+            return
+
+        # Ejecutar la acción correspondiente
+        for maquina, tecnico in seleccionados:
+            if self.tipo_accion == "Mantenimiento":
+                Gestion.Mantenimiento.iniciar_mantenimiento(maquina)
+            else:
+                Gestion.Mantenimiento.reparar(maquina)
+
+        messagebox.showinfo("Éxito", f"{len(seleccionados)} máquinas programadas para {self.tipo_accion.lower()}")
+        self.destroy()
+
 
 if __name__ == "__main__":
     Menu()

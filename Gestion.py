@@ -710,7 +710,7 @@ class Serviciotecnico:
         self._laborando = laborando  # False: Libre, True: Ocupado
 
     def get_laborando(self):
-        return self._laborando  # Nota el guión bajo en "_laborando"
+        return self._laborando
 
     def get_nombre(self):
         return self._nombre
@@ -822,17 +822,18 @@ dia = 0
 tecnico1 = Serviciotecnico("Juan", 123456, "Cosechador")
 tecnico2 = Serviciotecnico("Sofía", 987654, "Fumigador")
 tecnico3 = Serviciotecnico("Julio", 147258, "Tractor")
-
+tecnico4 = Serviciotecnico("df", 147257, "Tractor")
+tecnico5 = Serviciotecnico("h", 147255, "Tractor")
 # Instancia de máquinas
 maquina1 = Cosechador("C1", 100, 13)
-maquina2 = Fumigador("F1", 100, 5)
+maquina2 = Fumigador("F1", 100, 0)
 maquina3 = Tractor("T1", 100, 5)
 maquina4 = Cosechador("C2", 100, 5)
-maquina5 = Fumigador("F2", 100, 5)
+maquina5 = Fumigador("F2", 100, 0)
 maquina6 = Tractor("T2", 100, 5)
 
 # Listas de técnicos y máquinas
-lista_tecnicos = [tecnico1, tecnico2, tecnico3]
+lista_tecnicos = [tecnico1, tecnico2, tecnico3,tecnico4,tecnico5]
 todas_las_maquinas = [maquina1, maquina2, maquina3, maquina4, maquina5, maquina6]
 
 # Ejecución del programa
