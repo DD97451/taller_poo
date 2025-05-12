@@ -5,3 +5,6 @@ Día 1 | Mantenimiento preventivo | Técnico: Juan
 📅 2025-05-11| Día 0 ||
 🔄 Actividad: Mantenimiento preventivo |
 👨‍🔧 Técnico: Juan||
+📅 2025-05-11| Día 0 ||
+🔄 Actividad: Mantenimiento preventivo |
+👨‍🔧 Técnico: Juan||
